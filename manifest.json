@@ -1,0 +1,33 @@
+{
+  "description": "VRPC Browser Extension to connect to App and seek details from websites.",
+  "manifest_version": 2,
+  "name": "VRPC Extension",
+  "version": "1.0",
+  "icons": {
+    "48": "icons/favicon-temp.ico"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "vrpc@viktir.com",
+      "strict_min_version": "50.0"
+    }
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://music.youtube.com/*"],
+      "js": ["youtubemusic.js"]
+    }
+  ],
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "browser_action": {
+    "default_icon": "icons/favicon-temp.ico"
+  },
+  
+  "permissions": ["nativeMessaging", "activeTab"]
+}
