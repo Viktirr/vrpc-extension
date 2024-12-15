@@ -25,6 +25,7 @@ function runObserver()
           artistName = document.querySelector('div.middle-controls div.content-info-wrapper span.ytmusic-player-bar span.subtitle yt-formatted-string a.yt-formatted-string');
           songDuration = document.querySelector('div#left-controls span.time-info');
           songStatus = document.querySelector('div#left-controls tp-yt-paper-icon-button#play-pause-button').getAttribute("title");
+          smallSongBannerUrl = document.querySelector('div.middle-controls div.thumbnail-image-wrapper img.image').getAttribute("src");
 
           songUrl = new URL(window.location.href);
           try {
@@ -63,7 +64,7 @@ function runObserver()
           if ((songTitle.innerText != previousSongTitle) || (previousSongDuration != songDuration.innerText) || (songStatus != previousSongStatus)) {
             browser.runtime.sendMessage({
               type: "GET_RPC_INFO",
-              content: "Youtube Music" + "\n" + songTitle.innerText + "\n" + artistName.innerText + "\n" + songDurationCleaned + "\n" + songStatus + "\n" + songId
+              content: "Youtube Music" + "\n" + songTitle.innerText + "\n" + artistName.innerText + "\n" + songDurationCleaned + "\n" + songStatus + "\n" + songId + "\n" + smallSongBannerUrl
             });
           }
           previousSongTitle = songTitle.innerText;
