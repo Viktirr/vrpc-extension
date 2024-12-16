@@ -21,11 +21,28 @@ function runObserver()
   const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'attributes') {
+          artistName = "";
+          albumName = "";
+          releaseYear = "";
           songTitle = document.querySelector('div.middle-controls div.content-info-wrapper yt-formatted-string');
-          artistName = document.querySelector('div.middle-controls div.content-info-wrapper span.ytmusic-player-bar span.subtitle yt-formatted-string a.yt-formatted-string');
           songDuration = document.querySelector('div#left-controls span.time-info');
           songStatus = document.querySelector('div#left-controls tp-yt-paper-icon-button#play-pause-button').getAttribute("title");
           smallSongBannerUrl = document.querySelector('div.middle-controls div.thumbnail-image-wrapper img.image').getAttribute("src");
+
+          try { songInformation = document.querySelector('div.middle-controls div.content-info-wrapper span.ytmusic-player-bar span.subtitle yt-formatted-string').getAttribute("title"); } catch (error) { }
+
+          if (songInformation != null)
+          {
+            try {
+              songInformation = songInformation.split("•")
+            } catch (error) {
+              artistName = document.querySelector('div.middle-controls div.content-info-wrapper span.ytmusic-player-bar span.subtitle yt-formatted-string a.yt-formatted-string').innerText;
+            }
+
+            artistName = songInformation[0].trim();
+            albumName = songInformation[1].trim();
+            releaseYear = songInformation[2].trim();
+          }
 
           songUrl = new URL(window.location.href);
           try {
@@ -64,7 +81,7 @@ function runObserver()
           if ((songTitle.innerText != previousSongTitle) || (previousSongDuration != songDuration.innerText) || (songStatus != previousSongStatus)) {
             browser.runtime.sendMessage({
               type: "GET_RPC_INFO",
-              content: "Youtube Music" + "\n" + songTitle.innerText + "\n" + artistName.innerText + "\n" + songDurationCleaned + "\n" + songStatus + "\n" + songId + "\n" + smallSongBannerUrl
+              content: "Youtube Music" + "\n" + songTitle.innerText + "\n" + artistName + "\n" + songDurationCleaned + "\n" + songStatus + "\n" + songId + "\n" + smallSongBannerUrl + "\n" + albumName + "\n" + releaseYear
             });
           }
           previousSongTitle = songTitle.innerText;
