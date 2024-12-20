@@ -14,6 +14,14 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+browser.runtime.onSuspend.addListener(() => {
+  port.postMessage("Status: \n" + "Program\nShutdown");
+});
+
+browser.windows.onRemoved.addListener((windowId) => {
+  port.postMessage("Status: \n" + "Program\nShutdown");
+});
+
 browser.browserAction.onClicked.addListener(() => {
   console.log("Sending: 1234");
   port.postMessage("1234");
