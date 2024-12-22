@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;400;600&display=swap');
+
+:root {
+    --background: #121212;
+}
+
+body {
+    background-color: var(--background);
+    height: 400px;
+    margin: 0;
+    padding: 0;
+    width: 300px;
+}
+
+header {
+    align-items: center;
+    background-image: url("assets/connection_unknown.webp");
+    background-position: 50% 50%;
+    border-radius: 0.5em;
+    display: flex;
+    justify-content: center;
+    height: 15%;
+    margin: auto;
+    padding: 0;
+    width: 100%;
+}
+
+header.success {
+    background-image: url("assets/connection_success.webp");
+    transition: 0.5s;
+}
+
+header.failed {
+    background-image: url("assets/connection_failed.webp");
+    transition: 0.5s;
+}
+
+h1 {
+    color: #ffffff;
+    font-family: "Raleway", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    transition: 0.5s;
+}
