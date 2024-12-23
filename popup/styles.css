@@ -44,16 +44,25 @@ header.failed {
     background-color: var(--background-complement);
     border-radius: 0.5em;
     display: flex;
-    height: 120px;
+    flex-direction: column;
+    height: 132px;
     margin: 8px;
+    overflow: hidden;
     padding: 0;
     position: relative;
     width: 100% -12px;
 }
 
+.rich-presence-first-row {
+    display: flex;
+    flex-direction: row;
+    
+}
+
 .rich-presence-image-container {
     height: 64px;
     margin: 16px;
+    margin-bottom: 8px;
     margin-top: 32px;
     width: 64px;
 }
@@ -72,6 +81,7 @@ header.failed {
     height: 64px;
     justify-content: center;
     margin: 16px;
+    margin-bottom: 8px;
     margin-left: 0;
     margin-top: 32px;
     overflow: hidden;
@@ -86,12 +96,42 @@ header.failed {
     position: absolute;
     width: 100%;
 }
+
 .rich-presence-status p {
     color: var(--gray);
     font-size: 12px;
     font-weight: 400;
     padding: 0;
     position: inherit;
+}
+
+.rich-presence-time-container {
+    display: flex;
+    flex-direction: row;
+    height: 20px;
+    align-items: center;
+    margin-left: 16px;
+    margin-bottom: 16px;
+}
+
+.rich-presence-time-graphics {
+    background-color: var(--gray);
+    border-radius: 1em;
+    margin: 0 8px;
+    margin-top: 2px;
+    height: 3px;
+    width: 172px;
+}
+
+.rich-presence-time-graphics-elapsed {
+    background-color: var(--white);
+    border-radius: 1em;
+    height: 100%;
+}
+
+.rich-presence-time-start, .rich-presence-time-end {
+    max-width: 32px;
+    width: 32px;
 }
 
 h1 {
