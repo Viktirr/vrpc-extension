@@ -50,7 +50,13 @@ header.failed {
     overflow: hidden;
     padding: 0;
     position: relative;
+    transition: 0.75s;
     width: 100% -12px;
+}
+
+#rich-presence-container.inactive {
+    height: 32px;
+    transition: 0.75s;
 }
 
 .rich-presence-first-row {
@@ -117,9 +123,10 @@ header.failed {
 .rich-presence-time-graphics {
     background-color: var(--gray);
     border-radius: 1em;
+    height: 3px;
     margin: 0 8px;
     margin-top: 2px;
-    height: 3px;
+    overflow: hidden;
     width: 172px;
 }
 

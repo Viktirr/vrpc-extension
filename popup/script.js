@@ -68,13 +68,14 @@ browser.runtime.onMessage.addListener((message) => {
 
             if (currentrpcinfo[4].includes("True")) {
                 document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is active.";
+                document.getElementById("rich-presence-container").classList.add("active");
+                document.getElementById("rich-presence-container").classList.remove("inactive");
             }
             else {
                 document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive.";
+                document.getElementById("rich-presence-container").classList.add("inactive");
+                document.getElementById("rich-presence-container").classList.remove("active");
             }
-            // currentTime = 0:46
-            // songDuration = 5:00
-            // 0
             
             let currentTime = Math.floor(Date.now() / 1000);
             let songDuration = parseInt(currentrpcinfo[6]) - parseInt(currentrpcinfo[5]);
@@ -86,7 +87,8 @@ browser.runtime.onMessage.addListener((message) => {
             console.log(percentage);
 
             document.querySelector(".rich-presence-time-graphics-elapsed").style.width = percentage + "%";
-            RegularlyCheckForRichPresence();
         }
     }
 });
+
+RegularlyCheckForRichPresence();
