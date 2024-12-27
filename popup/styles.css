@@ -21,7 +21,7 @@ header {
     align-items: center;
     background-image: url("assets/connection_unknown.webp");
     background-position: 50% 50%;
-    border-radius: 0.5em;
+    border-bottom: 1px solid var(--gray);
     display: flex;
     justify-content: center;
     height: 15%;
@@ -159,7 +159,10 @@ p {
 
 .rich-presence-text-container p {
     color: var(--white);
+    display: inline;
     font-size: 14px;
-    margin-bottom: 2px;
+    max-width: 500px;
+    margin-bottom: 4px;
     white-space: nowrap;
+    width:fit-content;
 }
