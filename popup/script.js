@@ -134,6 +134,9 @@ browser.runtime.onMessage.addListener((message) => {
             document.getElementsByClassName("rich-presence-text-third")[0].innerHTML = currentrpcinfo[2];
             document.getElementsByClassName("rich-presence-image")[0].setAttribute("src", currentrpcinfo[3]);
             document.getElementsByClassName("rich-presence-image")[0].setAttribute("title", currentrpcinfo[2]);
+            
+            document.getElementById("rich-presence-container-background").style.background = "#282828 url(" + currentrpcinfo[3] + ") 0 0 / cover no-repeat";
+            //document.getElementById("rich-presence-container-background").style.backgroundColor = "#282828";
 
             if (currentrpcinfo[4].includes("True")) {
                 isRPCRunning = true;
