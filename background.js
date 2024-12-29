@@ -4,6 +4,14 @@ let AppActive = false;
 
 port.onMessage.addListener((response) => {
   console.log("Received: " + response);
+  if (response === "Alive") {
+    AppActive = true;
+    browser.runtime.sendMessage({
+      type: "SEND_POPUP_INFO",
+      content: "STATUS: ALIVE"
+    });
+    return;
+  }
   browser.runtime.sendMessage({
     type: "SEND_POPUP_INFO",
     content: response
@@ -13,6 +21,10 @@ port.onMessage.addListener((response) => {
 // Check if the app is running
 function CheckAppHeartbeat() {
   const timeoutAppResponse = setTimeout(() => {
+    if (AppActive == true) {
+      clearTimeout(timeoutAppResponse);
+      return;
+    }
     browser.runtime.sendMessage({
       type: "SEND_POPUP_INFO",
       content: "STATUS: FAILED"
@@ -21,20 +33,6 @@ function CheckAppHeartbeat() {
   }, 5000);
 
   console.log("Checking App Status");
-
-  AppListener = port.onMessage.addListener((response) => {
-    if (response === "Alive") {
-      AppActive = true;
-      browser.runtime.sendMessage({
-        type: "SEND_POPUP_INFO",
-        content: "STATUS: ALIVE"
-      });
-    }
-
-    clearTimeout(timeoutAppResponse);
-
-    port.onMessage.removeListener(AppListener);
-  });
 
   port.postMessage("Status: \nProgram\nHeartbeat");
 }

@@ -6,6 +6,8 @@
     --background-complement-secondary: #424242;
     --white: #ffffff;
     --gray: #999999;
+    --green: #009900;
+    --red: #990000;
 }
 
 body {
@@ -50,19 +52,21 @@ header.failed {
     overflow: hidden;
     padding: 0;
     position: relative;
-    transition: 0.75s;
     width: 100% -12px;
 }
 
 #rich-presence-container.inactive {
     height: 32px;
-    transition: 0.75s;
 }
 
 .rich-presence-first-row {
     display: flex;
     flex-direction: row;
-    
+}
+
+.rich-presence-second-row {
+    display: flex;
+    flex-direction: row;
 }
 
 .rich-presence-image-container {
@@ -97,18 +101,24 @@ header.failed {
 }
 
 .rich-presence-status {
-    left: 16px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     top: 10px;
     position: absolute;
     width: 100%;
 }
 
-.rich-presence-status p {
+.rich-presence-status-text {
+    left: 16px;
+    margin-left: 16px;
+}
+
+p.status {
     color: var(--gray);
     font-size: 12px;
     font-weight: 400;
     padding: 0;
-    position: inherit;
 }
 
 .rich-presence-time-container {
@@ -117,7 +127,6 @@ header.failed {
     height: 20px;
     align-items: center;
     margin-left: 16px;
-    margin-bottom: 16px;
 }
 
 .rich-presence-time-graphics {
@@ -141,6 +150,16 @@ header.failed {
     width: 32px;
 }
 
+.rich-presence-text-container p {
+    color: var(--white);
+    display: inline;
+    font-size: 14px;
+    max-width: 500px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    width:fit-content;
+}
+
 h1 {
     color: var(--white);
     font-family: "Raleway", Arial, sans-serif;
@@ -157,12 +176,25 @@ p {
     padding: 0;
 }
 
-.rich-presence-text-container p {
-    color: var(--white);
-    display: inline;
-    font-size: 14px;
-    max-width: 500px;
-    margin-bottom: 4px;
-    white-space: nowrap;
-    width:fit-content;
+.rich-presence-div
+{
+    left: 16px;
+}
+
+.rich-presence-discord-status {
+    width: 20px;
+}
+
+.success {
+    color: var(--green);
+    fill: var(--green);
+}
+
+.failed {
+    color: var(--red);
+    fill: var(--red);
+}
+
+.transition {
+    transition: 0.75s;
 }
