@@ -135,8 +135,7 @@ browser.runtime.onMessage.addListener((message) => {
             document.getElementsByClassName("rich-presence-image")[0].setAttribute("src", currentrpcinfo[3]);
             document.getElementsByClassName("rich-presence-image")[0].setAttribute("title", currentrpcinfo[2]);
             
-            document.getElementById("rich-presence-container-background").style.background = "#282828 url(" + currentrpcinfo[3] + ") 0 0 / cover no-repeat";
-            //document.getElementById("rich-presence-container-background").style.backgroundColor = "#282828";
+            document.getElementById("rich-presence-container-background").style.background = "#666 url(" + currentrpcinfo[3] + ") 0 0 / cover no-repeat";
 
             if (currentrpcinfo[4].includes("True")) {
                 isRPCRunning = true;
@@ -145,6 +144,8 @@ browser.runtime.onMessage.addListener((message) => {
                 document.getElementById("rich-presence-container").classList.remove("inactive");
                 document.getElementById("rich-presence-discord-status-image").classList.add("success");
                 document.getElementById("rich-presence-discord-status-image").classList.remove("failed");
+                document.getElementById("rich-presence-container-background").classList.add("active");
+                document.getElementById("rich-presence-container-background").classList.remove("inactive");
 
                 if (isScrollRunning == false) {
                     isScrollRunning = true;
@@ -156,6 +157,8 @@ browser.runtime.onMessage.addListener((message) => {
             else {
                 isRPCRunning = false;
                 document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive.";
+                document.getElementById("rich-presence-container-background").classList.remove("active");
+                document.getElementById("rich-presence-container-background").classList.add("inactive");
                 if (currentrpcinfo[7].includes("True")) {
                     document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive. App is receiving data.";
                     document.getElementById("rich-presence-container").classList.add("active");
@@ -169,8 +172,11 @@ browser.runtime.onMessage.addListener((message) => {
                 document.getElementById("rich-presence-discord-status-image").classList.remove("success");
             }
 
+            if(currentrpcinfo[6] < 1) { currentrpcinfo[6] = Math.floor(Date.now() / 1000); }
+
             let currentTime = Math.floor(Date.now() / 1000);
             let songDuration = parseInt(currentrpcinfo[6]) - parseInt(currentrpcinfo[5]);
+
 
             document.getElementsByClassName("rich-presence-time-start")[0].innerHTML = ConvertIntoTimestamp(currentTime - currentrpcinfo[5]);
             document.getElementsByClassName("rich-presence-time-end")[0].innerHTML = ConvertIntoTimestamp(songDuration);
