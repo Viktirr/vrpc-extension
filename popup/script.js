@@ -2,6 +2,21 @@ let isRPCRunning = false;
 let isScrollRunning = false;
 let firstUpdate = true;
 
+function OpenContainer(_container) {
+    console.log(_container);
+    let _dataContainer = _container + "-data";
+    let container = document.getElementById(_container);
+    let dataContainer = document.getElementById(_dataContainer);
+
+    if (container.classList.contains("closed")) {
+        container.style.height = dataContainer.offsetHeight + "px";
+        container.classList.remove("closed");
+    } else {
+        container.style.height = null;
+        container.classList.add("closed");
+    }
+}
+
 function GetRichPresence() {
     console.log("[Popup] Get RPC Info")
     browser.runtime.sendMessage({
@@ -98,6 +113,12 @@ document.addEventListener("DOMContentLoaded", () => {
         content: "CHECK_APP_HEARTBEAT"
     });
     document.getElementById("app-status-text").innerHTML = "Connecting";
+
+    var configContainer = document.getElementById("config-container-toggle");
+    var aboutContainer = document.getElementById("about-container-toggle");
+
+    configContainer.addEventListener("click", () => { OpenContainer("config-container") });
+    aboutContainer.addEventListener("click", () => { OpenContainer("about-container") });
 }, { once: true });
 
 browser.runtime.onMessage.addListener((message) => {
@@ -134,7 +155,7 @@ browser.runtime.onMessage.addListener((message) => {
             document.getElementsByClassName("rich-presence-text-third")[0].innerHTML = currentrpcinfo[2];
             document.getElementsByClassName("rich-presence-image")[0].setAttribute("src", currentrpcinfo[3]);
             document.getElementsByClassName("rich-presence-image")[0].setAttribute("title", currentrpcinfo[2]);
-            
+
             document.getElementById("rich-presence-container-background").style.background = "#666 url(" + currentrpcinfo[3] + ") 0 0 / cover no-repeat";
 
             if (currentrpcinfo[4].includes("True")) {
@@ -172,7 +193,7 @@ browser.runtime.onMessage.addListener((message) => {
                 document.getElementById("rich-presence-discord-status-image").classList.remove("success");
             }
 
-            if(currentrpcinfo[6] < 1) { currentrpcinfo[6] = Math.floor(Date.now() / 1000); }
+            if (currentrpcinfo[6] < 1) { currentrpcinfo[6] = Math.floor(Date.now() / 1000); }
 
             let currentTime = Math.floor(Date.now() / 1000);
             let songDuration = parseInt(currentrpcinfo[6]) - parseInt(currentrpcinfo[5]);

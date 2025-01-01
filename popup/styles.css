@@ -210,22 +210,61 @@ p {
     transition: 0.75s;
 }
 
-#config-container {
+.transition-medium {
+    transition: 0.5s;
+}
+
+.transition-fast {
+    transition: 0.33s;
+}
+
+.droppable-container {
     background-color: var(--background-complement);
     border-radius: 0.5em;
     display: flex;
     flex-direction: column;
-    height: 280px;
+    max-height: fit-content;
     margin: 8px;
     overflow: hidden;
     padding: 0;
     position: relative;
 }
 
+.droppable-container.closed {
+    height: 52px;
+}
+
+.droppable-container-toggle {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    height: 52px;
+    justify-content: end;
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+}
+
+.droppable-container-toggle img {
+    margin: 16px;
+    transform: rotateX(180deg);
+}
+
+.droppable-container.closed .droppable-container-toggle img {
+    transform: rotateX(0deg);
+}
+
 h2 {
     color: var(--white);
     font-size: 16px;
     font-weight: 600;
+    margin: 16px;
+}
+
+h3 {
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 400;
     margin: 16px;
 }
 

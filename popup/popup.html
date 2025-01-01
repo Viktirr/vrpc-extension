@@ -18,7 +18,7 @@
         <h1 id="app-status-text">Unknown</h1>
     </header>
     <div id="main-container">
-        <div id="rich-presence-container" class="active">
+        <div id="rich-presence-container" class="inactive">
             <div id="rich-presence-container-background" class="inactive">
                 <div id="rich-presence-container-background-overlay-status"></div>
                 <div id="rich-presence-container-background-overlay"></div>
@@ -51,8 +51,23 @@
                 <p class="rich-presence-time-end">0:00</p>
             </div>
         </div>
-        <div id="config-container">
-            <h2>Configuration</h2>
+        <div id="config-container" class="droppable-container closed transition-fast">
+            <div id="config-container-toggle" class="droppable-container-toggle">
+                <img src="assets/chevron-down.svg" viewbox="0 0 24 24" width="24" height="24" class="transition-fast">
+            </div>
+            <div id="config-container-data">
+                <h2>Configuration</h2>
+                <h3>Example config</h3>
+            </div>
+        </div>
+        <div id="about-container" class="droppable-container closed transition-fast">
+            <div id="about-container-toggle" class="droppable-container-toggle">
+                <img src="assets/chevron-down.svg" viewbox="0 0 24 24" width="24" height="24" class="transition-fast">
+            </div>
+            <div id="about-container-data">
+                <h2>About</h2>
+                <h3>Some icons are used from feathericons.com</h3>
+            </div>
         </div>
     </div>
 </body>
