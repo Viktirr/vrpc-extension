@@ -3,7 +3,6 @@ let isScrollRunning = false;
 let firstUpdate = true;
 
 function OpenContainer(_container) {
-    console.log(_container);
     let _dataContainer = _container + "-data";
     let container = document.getElementById(_container);
     let dataContainer = document.getElementById(_dataContainer);
@@ -15,6 +14,23 @@ function OpenContainer(_container) {
         container.style.height = null;
         container.classList.add("closed");
     }
+}
+
+function SwitchToggle(_toggle) {
+    let toggle = document.getElementById(_toggle);
+    let currentOption = false;
+
+    if (toggle.classList.contains("enabled")) {
+        toggle.classList.remove("enabled");
+        toggle.classList.add("disabled");
+        currentOption = false;
+    } else {
+        toggle.classList.remove("disabled");
+        toggle.classList.add("enabled");
+        currentOption = true;
+    }
+
+    if (_toggle = "toggle-about") { SwitchAboutVisibility(currentOption); }
 }
 
 function GetRichPresence() {
@@ -107,18 +123,35 @@ function startScrollRichPresenceText(element, container) {
     scrollRichPresenceText();
 }
 
+function SwitchAboutVisibility(currentOption) {
+    let _aboutContainer = document.getElementById("about-container");
+    if (currentOption == true) {
+        _aboutContainer.style.display = "none";
+    } else {
+        _aboutContainer.style.display = "flex";
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    browser.runtime.sendMessage({
-        type: "GET_POPUP_INFO",
-        content: "CHECK_APP_HEARTBEAT"
-    });
-    document.getElementById("app-status-text").innerHTML = "Connecting";
+    try {
+        browser.runtime.sendMessage({
+            type: "GET_POPUP_INFO",
+            content: "CHECK_APP_HEARTBEAT"
+        });
+        document.getElementById("app-status-text").innerHTML = "Connecting";    
+    } catch { }
 
     var configContainer = document.getElementById("config-container-toggle");
     var aboutContainer = document.getElementById("about-container-toggle");
 
     configContainer.addEventListener("click", () => { OpenContainer("config-container") });
     aboutContainer.addEventListener("click", () => { OpenContainer("about-container") });
+
+    var toggleAbout = document.getElementById("toggle-about");
+
+    toggleAbout.addEventListener("click", () => { SwitchToggle("toggle-about") });
+
+
 }, { once: true });
 
 browser.runtime.onMessage.addListener((message) => {

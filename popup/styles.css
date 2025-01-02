@@ -231,14 +231,14 @@ p {
 }
 
 .droppable-container.closed {
-    height: 52px;
+    height: 44px;
 }
 
 .droppable-container-toggle {
     align-items: center;
     cursor: pointer;
     display: flex;
-    height: 52px;
+    height: 44px;
     justify-content: end;
     position: absolute;
     z-index: 2;
@@ -246,26 +246,34 @@ p {
 }
 
 .droppable-container-toggle img {
-    margin: 16px;
+    margin: 12px 16px;
     transform: rotateX(180deg);
 }
 
 .droppable-container.closed .droppable-container-toggle img {
+    margin: 12px 16px;
     transform: rotateX(0deg);
+}
+
+.config-container-data-object {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
 }
 
 h2 {
     color: var(--white);
     font-size: 16px;
     font-weight: 600;
-    margin: 16px;
+    margin: 12px 16px;
 }
 
 h3 {
     color: var(--white);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 400;
-    margin: 16px;
+    margin: 12px 16px;
 }
 
 #main-container {
@@ -310,4 +318,32 @@ h3 {
 #rich-presence-container-background.active #rich-presence-container-background-overlay {
     opacity: 1;
     transition: 0.2s;
+}
+
+.button {
+    background-color:#000;
+    border: #99999999 solid 1px;
+    border-radius: 1em;
+    cursor: pointer;
+    height: 20px;
+    margin: 0 16px;
+    overflow: hidden;
+    width: 38px;
+}
+
+.button.disabled {
+    background-color: #331515;
+}
+
+.button.enabled {
+    background-color: #153315;
+}
+
+.button.enabled .button-circle {
+    transform: translate(18px);
+}
+
+.button-circle {
+    height: 18px;
+    width: 18px;
 }
