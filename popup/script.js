@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
             type: "GET_POPUP_INFO",
             content: "CHECK_APP_HEARTBEAT"
         });
-        document.getElementById("app-status-text").innerHTML = "Connecting";    
+        document.getElementById("app-status-text").innerHTML = "Connecting";
     } catch { }
 
     var configContainer = document.getElementById("config-container-toggle");
@@ -231,8 +231,11 @@ browser.runtime.onMessage.addListener((message) => {
             let currentTime = Math.floor(Date.now() / 1000);
             let songDuration = parseInt(currentrpcinfo[6]) - parseInt(currentrpcinfo[5]);
 
-
-            document.getElementsByClassName("rich-presence-time-start")[0].innerHTML = ConvertIntoTimestamp(currentTime - currentrpcinfo[5]);
+            if ((currentTime - currentrpcinfo[5]) > songDuration) {
+                document.getElementsByClassName("rich-presence-time-start")[0].innerHTML = ConvertIntoTimestamp(songDuration);
+            } else {
+                document.getElementsByClassName("rich-presence-time-start")[0].innerHTML = ConvertIntoTimestamp(currentTime - currentrpcinfo[5]);
+            }
             document.getElementsByClassName("rich-presence-time-end")[0].innerHTML = ConvertIntoTimestamp(songDuration);
 
             let percentage = (((currentTime - currentrpcinfo[5]) - 0) / (songDuration - 0) * 100);
