@@ -41,6 +41,14 @@ function GetRichPresence() {
     });
 }
 
+function GetFullConfig() {
+    console.log("[Popup] Get Full Config")
+    browser.runtime.sendMessage({
+        type: "SEND_TO_APP",
+        content: "GET_CONFIG_FULL"
+    });
+}
+
 function ConvertIntoTimestamp(time) {
     let minutes = Math.floor(time / 60);
     let seconds = time % 60;
@@ -70,7 +78,6 @@ async function RegularlyCheckForRichPresence() {
         });
     }
 }
-
 
 function startScrollRichPresenceText(element, container) {
     let fps = 60;
@@ -132,6 +139,81 @@ function SwitchAboutVisibility(currentOption) {
     }
 }
 
+function TestingAsPage() {
+    console.log("[Popup] Testing as page");
+
+    document.addEventListener("DOMContentLoaded", () => {
+        let configContainer = document.getElementById("config-container-data");
+        
+        let config = {
+            "Test1": false,
+            "Test2": false,
+            "Test3": true
+        };
+
+        for (let key in config) {
+            console.log(key + " : " + config[key]);
+            let configItem = document.createElement("div");
+            configItem.classList.add("config-container-data-object");
+            configItem.parentElement = configContainer;
+
+            let configItemName = document.createElement("h3");
+            configItemName.parentElement = configItem;
+            configItemName.innerHTML = key;
+
+            let configItemValue = document.createElement("div");
+            configItemValue.parentElement = configItem;
+            configItemValue.classList.add("button");
+            configItemValue.classList.add("transition-fast");
+            if (config[key] == true) { configItemValue.classList.add("enabled"); }
+            else { configItemValue.classList.add("disabled"); }
+
+            let configItemSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            configItemSvg.parentElement = configItemValue;
+            configItemSvg.style.width = "100%";
+            configItemSvg.style.height = "100%";
+
+            let configItemSvgCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            configItemSvgCircle.parentElement = configItemSvg;
+            configItemSvgCircle.setAttribute("cx", "10");
+            configItemSvgCircle.setAttribute("cy", "10");
+            configItemSvgCircle.setAttribute("r", "9");
+            configItemSvgCircle.setAttribute("fill", "#CCCA");
+            configItemSvgCircle.classList.add("button-circle");
+            configItemSvgCircle.classList.add("transition-fast");
+
+            configItemValue.addEventListener("click", () => {
+                if (configItemValue.classList.contains("enabled")) {
+                    configItemValue.classList.remove("enabled");
+                    configItemValue.classList.add("disabled");
+                    browser.runtime.sendMessage({
+                        type: "SEND_TO_APP",
+                        content: "SET_CONFIG",
+                        key: key,
+                        value: false
+                    });
+                } else {
+                    configItemValue.classList.remove("disabled");
+                    configItemValue.classList.add("enabled");
+                    browser.runtime.sendMessage({
+                        type: "SEND_TO_APP",
+                        content: "SET_CONFIG",
+                        key: key,
+                        value: true
+                    });
+                }
+            });
+
+            configItem.appendChild(configItemName);
+            configItem.appendChild(configItemValue);
+            configItemValue.appendChild(configItemSvg);
+            configItemSvg.appendChild(configItemSvgCircle);
+
+            configContainer.appendChild(configItem);
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     try {
         browser.runtime.sendMessage({
@@ -154,95 +236,164 @@ document.addEventListener("DOMContentLoaded", () => {
 
 }, { once: true });
 
-browser.runtime.onMessage.addListener((message) => {
-    if (message.type === "SEND_POPUP_INFO") {
-        console.log("[Popup] Received: " + message.content);
-        if (message.content === "STATUS: ALIVE") {
-            document.getElementById("app-status").classList.add("success");
-            document.getElementById("app-status-text").innerHTML = "Connected";
-            GetRichPresence();
-        }
-        else if (message.content === "STATUS: FAILED") {
-            document.getElementById("app-status").classList.add("failed");
-            document.getElementById("app-status-text").innerHTML = "Failed";
-        }
-        else if (message.content.includes("RPC: ")) {
-            // Message content should involve: [0] = Song Name, [1] = Artist Name, [2] = Album Name, [3] = Image Link, [4] = Discord RPC Status, [5] = Timestamp Start, [6] = Timestamp End, [7] = Is program receiving RPC?
-            message.content = message.content.replace("RPC: ", "");
-            currentrpcinfo = message.content.split("  .  ");
-
-            if (firstUpdate == true) {
-                document.getElementById("rich-presence-container").classList.remove("transition");
-                firstUpdate = false;
-            } else {
-                document.getElementById("rich-presence-container").classList.add("transition");
+try {
+    browser.runtime.onMessage.addListener((message) => {
+        if (message.type === "SEND_POPUP_INFO") {
+            console.log("[Popup] Received: " + message.content);
+            if (message.content === "STATUS: ALIVE") {
+                document.getElementById("app-status").classList.add("success");
+                document.getElementById("app-status-text").innerHTML = "Connected";
+                GetRichPresence();
+                GetFullConfig();
             }
-
-            if (message.content.includes("EMPTY")) {
-                currentrpcinfo[4] = currentrpcinfo[1];
-                currentrpcinfo[7] = currentrpcinfo[2];
+            else if (message.content === "STATUS: FAILED") {
+                document.getElementById("app-status").classList.add("failed");
+                document.getElementById("app-status-text").innerHTML = "Failed";
             }
+            else if (message.content.includes("RPC: ")) {
+                // Message content should involve: [0] = Song Name, [1] = Artist Name, [2] = Album Name, [3] = Image Link, [4] = Discord RPC Status, [5] = Timestamp Start, [6] = Timestamp End, [7] = Is program receiving RPC?
+                message.content = message.content.replace("RPC: ", "");
+                currentrpcinfo = message.content.split("  .  ");
 
-            document.getElementsByClassName("rich-presence-text-first")[0].innerHTML = currentrpcinfo[0];
-            document.getElementsByClassName("rich-presence-text-second")[0].innerHTML = currentrpcinfo[1];
-            document.getElementsByClassName("rich-presence-text-third")[0].innerHTML = currentrpcinfo[2];
-            document.getElementsByClassName("rich-presence-image")[0].setAttribute("src", currentrpcinfo[3]);
-            document.getElementsByClassName("rich-presence-image")[0].setAttribute("title", currentrpcinfo[2]);
-
-            document.getElementById("rich-presence-container-background").style.background = "#666 url(" + currentrpcinfo[3] + ") 0 0 / cover no-repeat";
-
-            if (currentrpcinfo[4].includes("True")) {
-                isRPCRunning = true;
-                document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is active.";
-                document.getElementById("rich-presence-container").classList.add("active");
-                document.getElementById("rich-presence-container").classList.remove("inactive");
-                document.getElementById("rich-presence-discord-status-image").classList.add("success");
-                document.getElementById("rich-presence-discord-status-image").classList.remove("failed");
-                document.getElementById("rich-presence-container-background").classList.add("active");
-                document.getElementById("rich-presence-container-background").classList.remove("inactive");
-
-                if (isScrollRunning == false) {
-                    isScrollRunning = true;
-                    startScrollRichPresenceText(document.querySelector(".rich-presence-text-first"), document.querySelector(".rich-presence-text-container"));
-                    startScrollRichPresenceText(document.querySelector(".rich-presence-text-second"), document.querySelector(".rich-presence-text-container"));
-                    startScrollRichPresenceText(document.querySelector(".rich-presence-text-third"), document.querySelector(".rich-presence-text-container"));
+                if (firstUpdate == true) {
+                    document.getElementById("rich-presence-container").classList.remove("transition");
+                    firstUpdate = false;
+                } else {
+                    document.getElementById("rich-presence-container").classList.add("transition");
                 }
-            }
-            else {
-                isRPCRunning = false;
-                document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive.";
-                document.getElementById("rich-presence-container-background").classList.remove("active");
-                document.getElementById("rich-presence-container-background").classList.add("inactive");
-                if (currentrpcinfo[7].includes("True")) {
-                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive. App is receiving data.";
+
+                if (message.content.includes("EMPTY")) {
+                    currentrpcinfo[4] = currentrpcinfo[1];
+                    currentrpcinfo[7] = currentrpcinfo[2];
+                }
+
+                document.getElementsByClassName("rich-presence-text-first")[0].innerHTML = currentrpcinfo[0];
+                document.getElementsByClassName("rich-presence-text-second")[0].innerHTML = currentrpcinfo[1];
+                document.getElementsByClassName("rich-presence-text-third")[0].innerHTML = currentrpcinfo[2];
+                document.getElementsByClassName("rich-presence-image")[0].setAttribute("src", currentrpcinfo[3]);
+                document.getElementsByClassName("rich-presence-image")[0].setAttribute("title", currentrpcinfo[2]);
+
+                document.getElementById("rich-presence-container-background").style.background = "#666 url(" + currentrpcinfo[3] + ") 0 0 / cover no-repeat";
+
+                if (currentrpcinfo[4].includes("True")) {
+                    isRPCRunning = true;
+                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is active.";
                     document.getElementById("rich-presence-container").classList.add("active");
                     document.getElementById("rich-presence-container").classList.remove("inactive");
                     document.getElementById("rich-presence-discord-status-image").classList.add("success");
                     document.getElementById("rich-presence-discord-status-image").classList.remove("failed");
+                    document.getElementById("rich-presence-container-background").classList.add("active");
+                    document.getElementById("rich-presence-container-background").classList.remove("inactive");
+
+                    if (isScrollRunning == false) {
+                        isScrollRunning = true;
+                        startScrollRichPresenceText(document.querySelector(".rich-presence-text-first"), document.querySelector(".rich-presence-text-container"));
+                        startScrollRichPresenceText(document.querySelector(".rich-presence-text-second"), document.querySelector(".rich-presence-text-container"));
+                        startScrollRichPresenceText(document.querySelector(".rich-presence-text-third"), document.querySelector(".rich-presence-text-container"));
+                    }
                 }
-                document.getElementById("rich-presence-container").classList.add("inactive");
-                document.getElementById("rich-presence-container").classList.remove("active");
-                document.getElementById("rich-presence-discord-status-image").classList.add("failed");
-                document.getElementById("rich-presence-discord-status-image").classList.remove("success");
+                else {
+                    isRPCRunning = false;
+                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive.";
+                    document.getElementById("rich-presence-container-background").classList.remove("active");
+                    document.getElementById("rich-presence-container-background").classList.add("inactive");
+                    if (currentrpcinfo[7].includes("True")) {
+                        document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive. App is receiving data.";
+                        document.getElementById("rich-presence-container").classList.add("active");
+                        document.getElementById("rich-presence-container").classList.remove("inactive");
+                        document.getElementById("rich-presence-discord-status-image").classList.add("success");
+                        document.getElementById("rich-presence-discord-status-image").classList.remove("failed");
+                    }
+                    document.getElementById("rich-presence-container").classList.add("inactive");
+                    document.getElementById("rich-presence-container").classList.remove("active");
+                    document.getElementById("rich-presence-discord-status-image").classList.add("failed");
+                    document.getElementById("rich-presence-discord-status-image").classList.remove("success");
+                }
+
+                if (currentrpcinfo[6] < 1) { currentrpcinfo[6] = Math.floor(Date.now() / 1000); }
+
+                let currentTime = Math.floor(Date.now() / 1000);
+                let songDuration = parseInt(currentrpcinfo[6]) - parseInt(currentrpcinfo[5]);
+
+                if ((currentTime - currentrpcinfo[5]) > songDuration) {
+                    document.getElementsByClassName("rich-presence-time-start")[0].innerHTML = ConvertIntoTimestamp(songDuration);
+                } else {
+                    document.getElementsByClassName("rich-presence-time-start")[0].innerHTML = ConvertIntoTimestamp(currentTime - currentrpcinfo[5]);
+                }
+                document.getElementsByClassName("rich-presence-time-end")[0].innerHTML = ConvertIntoTimestamp(songDuration);
+
+                let percentage = (((currentTime - currentrpcinfo[5]) - 0) / (songDuration - 0) * 100);
+
+                document.querySelector(".rich-presence-time-graphics-elapsed").style.width = percentage + "%";
             }
+            else if (message.content.includes("CONFIG: ")) {
+                message.content = message.content.replace("CONFIG: ", "");
+                let config = JSON.parse(message.content);
+                let configContainer = document.getElementById("config-container-data");
 
-            if (currentrpcinfo[6] < 1) { currentrpcinfo[6] = Math.floor(Date.now() / 1000); }
+                for (let key in config) {
+                    console.log(key + " : " + config[key]);
+                    let configItem = document.createElement("div");
+                    configItem.classList.add("config-container-data-object");
+                    configItem.parentElement = configContainer;
 
-            let currentTime = Math.floor(Date.now() / 1000);
-            let songDuration = parseInt(currentrpcinfo[6]) - parseInt(currentrpcinfo[5]);
+                    let configItemName = document.createElement("h3");
+                    configItemName.parentElement = configItem;
+                    configItemName.innerHTML = key;
 
-            if ((currentTime - currentrpcinfo[5]) > songDuration) {
-                document.getElementsByClassName("rich-presence-time-start")[0].innerHTML = ConvertIntoTimestamp(songDuration);
-            } else {
-                document.getElementsByClassName("rich-presence-time-start")[0].innerHTML = ConvertIntoTimestamp(currentTime - currentrpcinfo[5]);
+                    let configItemValue = document.createElement("div");
+                    configItemValue.parentElement = configItem;
+                    configItemValue.classList.add("button");
+                    configItemValue.classList.add("transition-fast");
+                    if (config[key] == true) { configItemValue.classList.add("enabled"); }
+                    else { configItemValue.classList.add("disabled"); }
+
+                    let configItemSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    configItemSvg.parentElement = configItemValue;
+                    configItemSvg.style.width = "100%";
+                    configItemSvg.style.height = "100%";
+
+                    let configItemSvgCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    configItemSvgCircle.parentElement = configItemSvg;
+                    configItemSvgCircle.setAttribute("cx", "10");
+                    configItemSvgCircle.setAttribute("cy", "10");
+                    configItemSvgCircle.setAttribute("r", "9");
+                    configItemSvgCircle.setAttribute("fill", "#CCCA");
+                    configItemSvgCircle.classList.add("button-circle");
+                    configItemSvgCircle.classList.add("transition-fast");
+
+                    configItemValue.addEventListener("click", () => {
+                        if (configItemValue.classList.contains("enabled")) {
+                            configItemValue.classList.remove("enabled");
+                            configItemValue.classList.add("disabled");
+                            browser.runtime.sendMessage({
+                                type: "SEND_TO_APP",
+                                content: "SET_CONFIG",
+                                key: key,
+                                value: false
+                            });
+                        } else {
+                            configItemValue.classList.remove("disabled");
+                            configItemValue.classList.add("enabled");
+                            browser.runtime.sendMessage({
+                                type: "SEND_TO_APP",
+                                content: "SET_CONFIG",
+                                key: key,
+                                value: true
+                            });
+                        }
+                    });
+
+                    configItem.appendChild(configItemName);
+                    configItem.appendChild(configItemValue);
+                    configItemValue.appendChild(configItemSvg);
+                    configItemSvg.appendChild(configItemSvgCircle);
+
+                    configContainer.appendChild(configItem);
+                }
             }
-            document.getElementsByClassName("rich-presence-time-end")[0].innerHTML = ConvertIntoTimestamp(songDuration);
-
-            let percentage = (((currentTime - currentrpcinfo[5]) - 0) / (songDuration - 0) * 100);
-
-            document.querySelector(".rich-presence-time-graphics-elapsed").style.width = percentage + "%";
-        }
-    }
-});
+        };
+    });
+} catch { TestingAsPage(); }
 
 RegularlyCheckForRichPresence();
