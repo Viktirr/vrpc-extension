@@ -155,6 +155,7 @@ function TestingAsPage() {
             console.log(key + " : " + config[key]);
             let configItem = document.createElement("div");
             configItem.classList.add("config-container-data-object");
+            configItem.setAttribute("configId", key);
             configItem.parentElement = configContainer;
 
             let configItemName = document.createElement("h3");
@@ -188,18 +189,14 @@ function TestingAsPage() {
                     configItemValue.classList.add("disabled");
                     browser.runtime.sendMessage({
                         type: "SEND_TO_APP",
-                        content: "SET_CONFIG",
-                        key: key,
-                        value: false
+                        content: "SET_CONFIG\n" + key + "\n" + false,
                     });
                 } else {
                     configItemValue.classList.remove("disabled");
                     configItemValue.classList.add("enabled");
                     browser.runtime.sendMessage({
                         type: "SEND_TO_APP",
-                        content: "SET_CONFIG",
-                        key: key,
-                        value: true
+                        content: "SET_CONFIG\n" + key + "\n" + true,
                     });
                 }
             });
@@ -335,6 +332,7 @@ try {
                     console.log(key + " : " + config[key]);
                     let configItem = document.createElement("div");
                     configItem.classList.add("config-container-data-object");
+                    configItem.setAttribute("configId", key);
                     configItem.parentElement = configContainer;
 
                     let configItemName = document.createElement("h3");
@@ -368,18 +366,14 @@ try {
                             configItemValue.classList.add("disabled");
                             browser.runtime.sendMessage({
                                 type: "SEND_TO_APP",
-                                content: "SET_CONFIG",
-                                key: key,
-                                value: false
+                                content: "SET_CONFIG\n" + key + "\n" + false
                             });
                         } else {
                             configItemValue.classList.remove("disabled");
                             configItemValue.classList.add("enabled");
                             browser.runtime.sendMessage({
                                 type: "SEND_TO_APP",
-                                content: "SET_CONFIG",
-                                key: key,
-                                value: true
+                                content: "SET_CONFIG\n" + key + "\n" + true
                             });
                         }
                     });
@@ -390,9 +384,23 @@ try {
                     configItemSvg.appendChild(configItemSvgCircle);
 
                     configContainer.appendChild(configItem);
+                    browser.runtime.sendMessage({
+                        type: "SEND_TO_APP",
+                        content: "GET_CONFIG_INFO\n" + key
+                    });
                 }
             }
-        };
+            else if (message.content.includes("CONFIGINFO: ")) {
+                message.content = message.content.replace("CONFIGINFO: ", "");
+
+                let configInfo = JSON.parse(message.content);
+                let configId = configInfo["InternalName"];
+
+                let configItem = document.querySelector(`[configId="${configId}"]`);
+                let configItemName = configItem.querySelector("h3");
+                configItemName.innerHTML = configInfo["DisplayName"];
+            };
+        }
     });
 } catch { TestingAsPage(); }
 
