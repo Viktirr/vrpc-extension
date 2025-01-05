@@ -1,6 +1,7 @@
 let isRPCRunning = false;
 let isScrollRunning = false;
 let firstUpdate = true;
+let hasLaunched = false;
 
 function OpenContainer(_container) {
     let _dataContainer = _container + "-data";
@@ -79,6 +80,26 @@ async function RegularlyCheckForRichPresence() {
     }
 }
 
+isRegularCheckForHeartbeatRunning = false;
+gotHeartbeatResponse = false;
+async function RegularlyCheckForHeartbeat() {
+    if (isRegularCheckForHeartbeatRunning == true) { return; }
+    while (true) {
+        isRegularCheckForHeartbeatRunning = true;
+        await sleep(4000);
+        if (gotHeartbeatResponse == false) {
+            document.getElementById("app-status").classList.remove("success");
+            document.getElementById("app-status").classList.add("failed");
+            document.getElementById("app-status-text").innerHTML = "Failed";
+        }
+        gotHeartbeatResponse = false;
+        browser.runtime.sendMessage({
+            type: "GET_POPUP_INFO",
+            content: "CHECK_APP_HEARTBEAT"
+        });
+    }
+}
+
 function startScrollRichPresenceText(element, container) {
     let fps = 60;
     let speed = (50 / fps);
@@ -144,7 +165,7 @@ function TestingAsPage() {
 
     document.addEventListener("DOMContentLoaded", () => {
         let configContainer = document.getElementById("config-container-data");
-        
+
         let config = {
             "Test1": false,
             "Test2": false,
@@ -240,8 +261,12 @@ try {
             if (message.content === "STATUS: ALIVE") {
                 document.getElementById("app-status").classList.add("success");
                 document.getElementById("app-status-text").innerHTML = "Connected";
-                GetRichPresence();
-                GetFullConfig();
+                if (hasLaunched == false) {
+                    GetRichPresence();
+                    GetFullConfig();
+                }
+                hasLaunched = true;
+                gotHeartbeatResponse = true;
             }
             else if (message.content === "STATUS: FAILED") {
                 document.getElementById("app-status").classList.add("failed");
@@ -405,3 +430,4 @@ try {
 } catch { TestingAsPage(); }
 
 RegularlyCheckForRichPresence();
+RegularlyCheckForHeartbeat();
