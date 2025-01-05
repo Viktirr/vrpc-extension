@@ -5,7 +5,7 @@ browser.runtime.sendMessage({
 });
 browser.runtime.sendMessage({
   type: "GET_RPC_INFO",
-  content: "Youtube Music" + "\n"
+  content: "YouTube Music" + "\n"
 });
 
 songTitle = "";
@@ -81,7 +81,7 @@ function runObserver()
           if ((songTitle.innerText != previousSongTitle) || (previousSongDuration != songDuration.innerText) || (songStatus != previousSongStatus)) {
             browser.runtime.sendMessage({
               type: "GET_RPC_INFO",
-              content: "Youtube Music" + "\n" + songTitle.innerText + "\n" + artistName + "\n" + songDurationCleaned + "\n" + songStatus + "\n" + songId + "\n" + smallSongBannerUrl + "\n" + albumName + "\n" + releaseYear
+              content: "YouTube Music" + "\n" + songTitle.innerText + "\n" + artistName + "\n" + songDurationCleaned + "\n" + songStatus + "\n" + songId + "\n" + smallSongBannerUrl + "\n" + albumName + "\n" + releaseYear
             });
           }
           previousSongTitle = songTitle.innerText;

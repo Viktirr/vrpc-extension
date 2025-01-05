@@ -13,9 +13,73 @@
 </head>
 
 <body>
+    <!-- TBD: Currently listening, adjust settings from the app -->
     <header id="app-status">
         <h1 id="app-status-text">Unknown</h1>
     </header>
+    <div id="main-container">
+        <div id="rich-presence-container" class="inactive">
+            <div id="rich-presence-container-background" class="inactive">
+                <div id="rich-presence-container-background-overlay-status"></div>
+                <div id="rich-presence-container-background-overlay"></div>
+            </div>
+            <div class="rich-presence-first-row">
+                <div class="rich-presence-status">
+                    <p class="rich-presence-status-text status">Unknown status</p>
+                    <div class="rich-presence-discord-status">
+                        <svg>
+                            <circle id="rich-presence-discord-status-image" class="failed" cx="5" cy="5" r="4" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="rich-presence-second-row">
+                <div class="rich-presence-image-container">
+                    <img class="rich-presence-image" src="">
+                </div>
+                <div class="rich-presence-text-container">
+                    <p class="rich-presence-text-first"></p>
+                    <p class="rich-presence-text-second"></p>
+                    <p class="rich-presence-text-third"></p>
+                </div>
+            </div>
+            <div class="rich-presence-time-container">
+                <p class="rich-presence-time-start">0:00</p>
+                <div class="rich-presence-time-graphics">
+                    <div class="rich-presence-time-graphics-elapsed"></div>
+                </div>
+                <p class="rich-presence-time-end">0:00</p>
+            </div>
+        </div>
+        <div id="config-container" class="droppable-container closed transition-fast">
+            <div id="config-container-toggle" class="droppable-container-toggle">
+                <img src="assets/chevron-down.svg" viewbox="0 0 24 24" width="24" height="24" class="transition-fast">
+            </div>
+            <div id="config-container-data">
+                <h2>Configuration</h2>
+                <div class="config-container-data-object">
+                    <h3>Example config</h3>
+                </div>
+                <div class="config-container-data-object">
+                    <h3>Disable About section</h3>
+                    <div id="toggle-about" class="button disabled transition-fast">
+                        <svg style="width: 100%; height:100%;">
+                            <circle class="button-circle transition-fast" cx="10" cy="10" r="9" fill="#CCCA"></circle>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="about-container" class="droppable-container closed transition-fast">
+            <div id="about-container-toggle" class="droppable-container-toggle">
+                <img src="assets/chevron-down.svg" viewbox="0 0 24 24" width="24" height="24" class="transition-fast">
+            </div>
+            <div id="about-container-data">
+                <h2>About</h2>
+                <h3>Some icons are used from feathericons.com</h3>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
