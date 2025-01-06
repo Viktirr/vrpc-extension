@@ -1,4 +1,5 @@
 let isRPCRunning = false;
+let isRPCShown = false;
 let isScrollRunning = false;
 let firstUpdate = true;
 let hasLaunched = false;
@@ -110,7 +111,7 @@ function startScrollRichPresenceText(element, container) {
     let idleIterationCap = (fps * 2);
 
     function scrollRichPresenceText() {
-        if (isRPCRunning == false) { isScrollRunning = false; return; }
+        if (isRPCShown == false) { isScrollRunning = false; return; }
 
         const containerWidth = container.offsetWidth;
         const textWidth = element.offsetWidth;
@@ -160,6 +161,16 @@ function SwitchAboutVisibility(currentOption) {
     }
 }
 
+function EnableTextScrolling() {
+    if (isScrollRunning == false) {
+        isScrollRunning = true;
+        startScrollRichPresenceText(document.querySelector(".rich-presence-text-first"), document.querySelector(".rich-presence-text-container"));
+        startScrollRichPresenceText(document.querySelector(".rich-presence-text-second"), document.querySelector(".rich-presence-text-container"));
+        startScrollRichPresenceText(document.querySelector(".rich-presence-text-third"), document.querySelector(".rich-presence-text-container"));
+        startScrollRichPresenceText(document.querySelector(".rich-presence-status-text"), document.querySelector(".rich-presence-status-text-container"));
+    }
+}
+
 function TestingAsPage() {
     console.log("[Popup] Testing as page");
 
@@ -172,6 +183,28 @@ function TestingAsPage() {
             "Test3": true
         };
 
+        let configInfo = {
+            "Test1": {
+                "DisplayName": "Test 1",
+                "Description": "This is a test description for Test 1",
+                "Visibility": "Visible",
+                "InternalName": "Test1"
+            },
+            "Test2": {
+                "DisplayName": "Test 2",
+                "Description": "This is a test description for Test 2",
+                "Visibility": "Visible",
+                "InternalName": "Test2"
+            },
+            "Test3": {
+                "DisplayName": "Test 3",
+                "Description": "This is a test description for Test 3",
+                "Visibility": "Hidden",
+                "InternalName": "Test3"
+            }
+        }
+
+        // Config
         for (let key in config) {
             console.log(key + " : " + config[key]);
             let configItem = document.createElement("div");
@@ -229,6 +262,35 @@ function TestingAsPage() {
 
             configContainer.appendChild(configItem);
         }
+
+        //ConfigInfo
+        for (let key in configInfo) {
+            let configItem = document.querySelector(`[configId="${key}"]`);
+            let configItemName = configItem.querySelector("h3");
+            configItemName.innerHTML = configInfo[key]["DisplayName"];
+
+            if (configInfo[key]["Visibility"] == "Hidden") {
+                configItem.style.display = "none";
+            }
+
+            if (configInfo[key]["Description"] != "") {
+                let configItemTextContainer = document.createElement("div");
+                configItemTextContainer.parentElement = configItem;
+                configItemTextContainer.classList.add("config-container-data-object-text");
+                configItem.appendChild(configItemTextContainer);
+
+                let configItemTitle = configItem.querySelector("h3");
+                configItemTextContainer.appendChild(configItemTitle);
+
+                let configItemDescription = document.createElement("p");
+                configItemDescription.parentElement = configItem;
+                configItemDescription.innerHTML = configInfo[key]["Description"];
+                configItemTextContainer.appendChild(configItemDescription);
+
+                //Reorder elements
+                configItem.appendChild(configItem.querySelector("div.button"));
+            }
+        }
     });
 }
 
@@ -273,7 +335,7 @@ try {
                 document.getElementById("app-status-text").innerHTML = "Failed";
             }
             else if (message.content.includes("RPC: ")) {
-                // Message content should involve: [0] = Song Name, [1] = Artist Name, [2] = Album Name, [3] = Image Link, [4] = Discord RPC Status, [5] = Timestamp Start, [6] = Timestamp End, [7] = Is program receiving RPC?
+                // Message content should involve: [0] = Song Name, [1] = Artist Name, [2] = Album Name, [3] = Image Link, [4] = Discord RPC Status, [5] = Timestamp Start, [6] = Timestamp End, [7] = Is program receiving RPC?, [8] = Service Name
                 message.content = message.content.replace("RPC: ", "");
                 currentrpcinfo = message.content.split("  .  ");
 
@@ -299,7 +361,8 @@ try {
 
                 if (currentrpcinfo[4].includes("True")) {
                     isRPCRunning = true;
-                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is active.";
+                    isRPCShown = true;
+                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is active. Currently listening on " + currentrpcinfo[8] + ".";
                     document.getElementById("rich-presence-container").classList.add("active");
                     document.getElementById("rich-presence-container").classList.remove("inactive");
                     document.getElementById("rich-presence-discord-status-image").classList.add("success");
@@ -307,12 +370,7 @@ try {
                     document.getElementById("rich-presence-container-background").classList.add("active");
                     document.getElementById("rich-presence-container-background").classList.remove("inactive");
 
-                    if (isScrollRunning == false) {
-                        isScrollRunning = true;
-                        startScrollRichPresenceText(document.querySelector(".rich-presence-text-first"), document.querySelector(".rich-presence-text-container"));
-                        startScrollRichPresenceText(document.querySelector(".rich-presence-text-second"), document.querySelector(".rich-presence-text-container"));
-                        startScrollRichPresenceText(document.querySelector(".rich-presence-text-third"), document.querySelector(".rich-presence-text-container"));
-                    }
+                    EnableTextScrolling();
                 }
                 else {
                     isRPCRunning = false;
@@ -320,16 +378,21 @@ try {
                     document.getElementById("rich-presence-container-background").classList.remove("active");
                     document.getElementById("rich-presence-container-background").classList.add("inactive");
                     if (currentrpcinfo[7].includes("True")) {
-                        document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive. App is receiving data.";
+                        isRPCShown = true;
+                        document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive. App is receiving data. Currently listening on " + currentrpcinfo[8] + ".";
                         document.getElementById("rich-presence-container").classList.add("active");
                         document.getElementById("rich-presence-container").classList.remove("inactive");
                         document.getElementById("rich-presence-discord-status-image").classList.add("success");
                         document.getElementById("rich-presence-discord-status-image").classList.remove("failed");
+                        document.getElementById("rich-presence-container-background").classList.add("active");
+                        document.getElementById("rich-presence-container-background").classList.remove("inactive");
+                        EnableTextScrolling();
+                    } else {
+                        document.getElementById("rich-presence-container").classList.add("inactive");
+                        document.getElementById("rich-presence-container").classList.remove("active");
+                        document.getElementById("rich-presence-discord-status-image").classList.add("failed");
+                        document.getElementById("rich-presence-discord-status-image").classList.remove("success");
                     }
-                    document.getElementById("rich-presence-container").classList.add("inactive");
-                    document.getElementById("rich-presence-container").classList.remove("active");
-                    document.getElementById("rich-presence-discord-status-image").classList.add("failed");
-                    document.getElementById("rich-presence-discord-status-image").classList.remove("success");
                 }
 
                 if (currentrpcinfo[6] < 1) { currentrpcinfo[6] = Math.floor(Date.now() / 1000); }
@@ -424,6 +487,28 @@ try {
                 let configItem = document.querySelector(`[configId="${configId}"]`);
                 let configItemName = configItem.querySelector("h3");
                 configItemName.innerHTML = configInfo["DisplayName"];
+
+                if (configInfo["Visibility"] == "Hidden") {
+                    configItem.style.display = "none";
+                }
+
+                if (configInfo["Description"] != "") {
+                    let configItemTextContainer = document.createElement("div");
+                    configItemTextContainer.parentElement = configItem;
+                    configItemTextContainer.classList.add("config-container-data-object-text");
+                    configItem.appendChild(configItemTextContainer);
+
+                    let configItemTitle = configItem.querySelector("h3");
+                    configItemTextContainer.appendChild(configItemTitle);
+
+                    let configItemDescription = document.createElement("p");
+                    configItemDescription.parentElement = configItem;
+                    configItemDescription.innerHTML = configInfo["Description"];
+                    configItemTextContainer.appendChild(configItemDescription);
+
+                    //Reorder elements
+                    configItem.appendChild(configItem.querySelector("div.button"));
+                }
             };
         }
     });
