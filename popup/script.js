@@ -362,7 +362,7 @@ try {
                 if (currentrpcinfo[4].includes("True")) {
                     isRPCRunning = true;
                     isRPCShown = true;
-                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is active. Currently listening on " + currentrpcinfo[8] + ".";
+                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is active | Currently listening on " + currentrpcinfo[8] + ".";
                     document.getElementById("rich-presence-container").classList.add("active");
                     document.getElementById("rich-presence-container").classList.remove("inactive");
                     document.getElementById("rich-presence-discord-status-image").classList.add("success");
@@ -374,12 +374,12 @@ try {
                 }
                 else {
                     isRPCRunning = false;
-                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive.";
+                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive";
                     document.getElementById("rich-presence-container-background").classList.remove("active");
                     document.getElementById("rich-presence-container-background").classList.add("inactive");
                     if (currentrpcinfo[7].includes("True")) {
                         isRPCShown = true;
-                        document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive. App is receiving data. Currently listening on " + currentrpcinfo[8] + ".";
+                        document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive | App is receiving data | Currently listening on " + currentrpcinfo[8] + ".";
                         document.getElementById("rich-presence-container").classList.add("active");
                         document.getElementById("rich-presence-container").classList.remove("inactive");
                         document.getElementById("rich-presence-discord-status-image").classList.add("success");
