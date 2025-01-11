@@ -1,10 +1,10 @@
 console.log('YouTube Music script is ran.');
 browser.runtime.sendMessage({
-  type: "GET_STATUS_INFO",
+  type: "SET_STATUS_INFO",
   content: "YouTube Music\nOpened"
 });
 browser.runtime.sendMessage({
-  type: "GET_RPC_INFO",
+  type: "SET_RPC_INFO",
   content: "YouTube Music" + "\n"
 });
 
@@ -16,102 +16,98 @@ previousArtistName = "";
 previousSongDuration = "";
 previousSongStatus = "";
 
-function runObserver()
-{
+function runObserver() {
   const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes') {
-          artistName = "";
-          albumName = "";
-          releaseYear = "";
-          songTitle = document.querySelector('div.middle-controls div.content-info-wrapper yt-formatted-string');
-          songDuration = document.querySelector('div#left-controls span.time-info');
-          songStatus = document.querySelector('div#left-controls tp-yt-paper-icon-button#play-pause-button').getAttribute("title");
-          smallSongBannerUrl = document.querySelector('div.middle-controls div.thumbnail-image-wrapper img.image').getAttribute("src");
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes') {
+        artistName = "";
+        albumName = "";
+        releaseYear = "";
+        songTitle = document.querySelector('div.middle-controls div.content-info-wrapper yt-formatted-string');
+        songDuration = document.querySelector('div#left-controls span.time-info');
+        songStatus = document.querySelector('div#left-controls tp-yt-paper-icon-button#play-pause-button').getAttribute("title");
+        smallSongBannerUrl = document.querySelector('div.middle-controls div.thumbnail-image-wrapper img.image').getAttribute("src");
 
-          try { songInformation = document.querySelector('div.middle-controls div.content-info-wrapper span.ytmusic-player-bar span.subtitle yt-formatted-string').getAttribute("title"); } catch (error) { }
+        try { songInformation = document.querySelector('div.middle-controls div.content-info-wrapper span.ytmusic-player-bar span.subtitle yt-formatted-string').getAttribute("title"); } catch (error) { }
 
-          if (songInformation != null)
-          {
-            try {
-              songInformation = songInformation.split("•")
-            } catch (error) {
-              artistName = document.querySelector('div.middle-controls div.content-info-wrapper span.ytmusic-player-bar span.subtitle yt-formatted-string a.yt-formatted-string').innerText;
-            }
-
-            artistName = songInformation[0].trim();
-            albumName = songInformation[1].trim();
-            releaseYear = songInformation[2].trim();
-          }
-
-          songUrl = new URL(window.location.href);
+        if (songInformation != null) {
           try {
-            songId = songUrl.searchParams.get("v");
+            songInformation = songInformation.split("•")
           } catch (error) {
-            songId = "";
-            console.log("Couldn't retrieve url.");
-          }
-          
-
-          if (songStatus === "Play")
-          {
-            songStatus = "Paused";
-          } else {
-            songStatus = "Playing";
+            artistName = document.querySelector('div.middle-controls div.content-info-wrapper span.ytmusic-player-bar span.subtitle yt-formatted-string a.yt-formatted-string').innerText;
           }
 
-          songDurationCleaned = songDuration.innerText.replace(/\n {4}/g, '').replace(/\n {2}/g, '');
-
-          if (songTitle) {
-            if (songTitle.innerText != previousSongTitle) {
-              //console.log('Song Title:', songTitle.innerText);
-            }
-          }
-
-          if (artistName) {
-            if(artistName.innerText != previousArtistName) {
-              //console.log('Artist Name:', artistName.innerText);
-            }
-          }
-
-          if (songDuration) {
-            //console.log('Song Duration:', songDurationCleaned);
-          }
-
-          if ((songTitle.innerText != previousSongTitle) || (previousSongDuration != songDuration.innerText) || (songStatus != previousSongStatus)) {
-            browser.runtime.sendMessage({
-              type: "GET_RPC_INFO",
-              content: "YouTube Music" + "\n" + songTitle.innerText + "\n" + artistName + "\n" + songDurationCleaned + "\n" + songStatus + "\n" + songId + "\n" + smallSongBannerUrl + "\n" + albumName + "\n" + releaseYear
-            });
-          }
-          previousSongTitle = songTitle.innerText;
-          previousArtistName = artistName.innerText;
-          previousSongDuration = songDuration.innerText;
-          previousSongStatus = songStatus;
+          artistName = songInformation[0].trim();
+          albumName = songInformation[1].trim();
+          releaseYear = songInformation[2].trim();
         }
-      });
+
+        songUrl = new URL(window.location.href);
+        try {
+          songId = songUrl.searchParams.get("v");
+        } catch (error) {
+          songId = "";
+          console.log("Couldn't retrieve url.");
+        }
+
+
+        if (songStatus === "Play") {
+          songStatus = "Paused";
+        } else {
+          songStatus = "Playing";
+        }
+
+        songDurationCleaned = songDuration.innerText.replace(/\n {4}/g, '').replace(/\n {2}/g, '');
+
+        if (songTitle) {
+          if (songTitle.innerText != previousSongTitle) {
+            //console.log('Song Title:', songTitle.innerText);
+          }
+        }
+
+        if (artistName) {
+          if (artistName.innerText != previousArtistName) {
+            //console.log('Artist Name:', artistName.innerText);
+          }
+        }
+
+        if (songDuration) {
+          //console.log('Song Duration:', songDurationCleaned);
+        }
+
+        if ((songTitle.innerText != previousSongTitle) || (previousSongDuration != songDuration.innerText) || (songStatus != previousSongStatus)) {
+          browser.runtime.sendMessage({
+            type: "SET_RPC_INFO",
+            content: "YouTube Music" + "\n" + songTitle.innerText + "\n" + artistName + "\n" + songDurationCleaned + "\n" + songStatus + "\n" + songId + "\n" + smallSongBannerUrl + "\n" + albumName + "\n" + releaseYear
+          });
+        }
+        previousSongTitle = songTitle.innerText;
+        previousArtistName = artistName.innerText;
+        previousSongDuration = songDuration.innerText;
+        previousSongStatus = songStatus;
+      }
     });
-    
+  });
+
   observer.observe(document.querySelector("ytmusic-player-bar"), { childList: true, subtree: true, attributes: true });
 }
 
-if (document.readyState === "complete")
-{
+if (document.readyState === "complete") {
   console.log("Document is ready, starting observer")
   runObserver();
 } else {
   console.log("Document is not ready, adding event listener..")
-  document.addEventListener("readystatechange", function() {
-    if(document.readyState === "complete") {
+  document.addEventListener("readystatechange", function () {
+    if (document.readyState === "complete") {
       console.log("Document is ready, starting observer");
       runObserver();
     }
-})
+  })
 }
 
 window.addEventListener("unload", () => {
   browser.runtime.sendMessage({
-    type: "GET_STATUS_INFO",
+    type: "SET_STATUS_INFO",
     content: "YouTube Music\nClosed"
   });
 });

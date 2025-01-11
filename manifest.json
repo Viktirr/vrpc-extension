@@ -4,7 +4,7 @@
   "name": "VRPC Extension",
   "version": "1.0",
   "icons": {
-    "48": "icons/favicon-temp.ico"
+    "48": "icons/vlogorpc.ico"
   },
   "browser_action": {
     "default_popup": "popup/popup.html",
@@ -24,6 +24,10 @@
     {
       "matches": ["*://music.youtube.com/*"],
       "js": ["youtubemusic.js"]
+    },
+    {
+      "matches": ["*://soundcloud.com/*"],
+      "js": ["soundcloud.js"]
     }
   ],
 
