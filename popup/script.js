@@ -382,10 +382,10 @@ try {
                         document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive | App is receiving data | Currently listening on " + currentrpcinfo[8] + ".";
                         document.getElementById("rich-presence-container").classList.add("active");
                         document.getElementById("rich-presence-container").classList.remove("inactive");
-                        document.getElementById("rich-presence-discord-status-image").classList.add("success");
-                        document.getElementById("rich-presence-discord-status-image").classList.remove("failed");
-                        document.getElementById("rich-presence-container-background").classList.add("active");
-                        document.getElementById("rich-presence-container-background").classList.remove("inactive");
+                        document.getElementById("rich-presence-discord-status-image").classList.add("failed");
+                        document.getElementById("rich-presence-discord-status-image").classList.remove("success");
+                        document.getElementById("rich-presence-container-background").classList.add("inactive");
+                        document.getElementById("rich-presence-container-background").classList.remove("active");
                         EnableTextScrolling();
                     } else {
                         document.getElementById("rich-presence-container").classList.add("inactive");
