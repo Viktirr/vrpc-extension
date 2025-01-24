@@ -2,12 +2,15 @@
 
 :root {
     --background: #121212;
-    --background-complement: #282828;
+    --background-complement: #28282899;
     --background-complement-secondary: #626262;
     --white: #ffffff;
     --gray: #999999;
     --green: #009900;
     --red: #990000;
+
+    --height: 400px;
+    --width: 300px;
 }
 
 body {
@@ -390,4 +393,18 @@ h3 {
 a {
     color: var(--white);
     text-decoration: underline;
+}
+
+hr {
+    color: #5555;
+    width: 90%;
+}
+
+#main-container-background {
+    background-color: var(--background);
+    background-image: radial-gradient(circle at 67% 100%, #2e004ddc 0%, #0000 66%), radial-gradient(circle at 0% 100%, #19005fd3 0%, #0000 66%);
+    position: absolute;
+    height: var(--height);
+    width: var(--width);
+    z-index: 0;
 }
