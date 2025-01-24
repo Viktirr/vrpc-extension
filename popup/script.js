@@ -4,6 +4,8 @@ let isScrollRunning = false;
 let firstUpdate = true;
 let hasLaunched = false;
 
+let versionNumber = 0.6;
+
 function OpenContainer(_container) {
     let _dataContainer = _container + "-data";
     let container = document.getElementById(_container);
@@ -294,6 +296,9 @@ function TestingAsPage() {
     });
 }
 
+
+
+// On start popup
 document.addEventListener("DOMContentLoaded", () => {
     try {
         browser.runtime.sendMessage({
@@ -301,19 +306,25 @@ document.addEventListener("DOMContentLoaded", () => {
             content: "CHECK_APP_HEARTBEAT"
         });
         document.getElementById("app-status-text").innerHTML = "Connecting";
+        browser.runtime.sendMessage({
+            type: "SEND_TO_APP",
+            content: "GET_APP_VERSION"
+        });
     } catch { }
 
-    var configContainer = document.getElementById("config-container-toggle");
-    var aboutContainer = document.getElementById("about-container-toggle");
+    var configContainer = document.getElementById("config-container");
+    var configContainerToggle = document.getElementById("config-container-toggle");
+    var aboutContainer = document.getElementById("about-container");
+    var aboutContainerToggle = document.getElementById("about-container-toggle");
 
-    configContainer.addEventListener("click", () => { OpenContainer("config-container") });
-    aboutContainer.addEventListener("click", () => { OpenContainer("about-container") });
+    configContainerToggle.addEventListener("click", () => { OpenContainer("config-container") });
+    aboutContainerToggle.addEventListener("click", () => { OpenContainer("about-container") });
 
     var toggleAbout = document.getElementById("toggle-about");
 
     toggleAbout.addEventListener("click", () => { SwitchToggle("toggle-about") });
 
-
+    aboutContainer.querySelector("#about-container-data p.plus-main-text").innerHTML = `Version ${versionNumber}`;
 }, { once: true });
 
 try {
@@ -509,7 +520,16 @@ try {
                     //Reorder elements
                     configItem.appendChild(configItem.querySelector("div.button"));
                 }
-            };
+            }
+            else if (message.content.includes("APPVERSION: ")) {
+                message.content = message.content.replace("APPVERSION: ", "");
+
+                var aboutContainer = document.getElementById("about-container");
+                let versionText = aboutContainer.querySelector("#about-container-data p.plus-main-text");
+
+                versionText.innerHTML = `Version: ${versionNumber} | App Version: ${message.content}`;
+                if (versionNumber != message.content) { document.getElementById("about-container-app-warning").style.display = "block" }
+            }
         }
     });
 } catch { TestingAsPage(); }
