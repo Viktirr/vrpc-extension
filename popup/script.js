@@ -362,13 +362,18 @@ try {
                     currentrpcinfo[7] = currentrpcinfo[2];
                 }
 
+                if (!currentrpcinfo[3].includes("http") || !currentrpcinfo[3].includes("https"))
+                {
+                    currentrpcinfo[3] = "./assets/" + currentrpcinfo[3] + ".webp";
+                }
+
                 document.getElementsByClassName("rich-presence-text-first")[0].innerHTML = currentrpcinfo[0];
                 document.getElementsByClassName("rich-presence-text-second")[0].innerHTML = currentrpcinfo[1];
                 document.getElementsByClassName("rich-presence-text-third")[0].innerHTML = currentrpcinfo[2];
                 document.getElementsByClassName("rich-presence-image")[0].setAttribute("src", currentrpcinfo[3]);
                 document.getElementsByClassName("rich-presence-image")[0].setAttribute("title", currentrpcinfo[2]);
 
-                document.getElementById("rich-presence-container-background").style.background = "#666 url(" + currentrpcinfo[3] + ") 0 0 / cover no-repeat";
+                document.getElementById("rich-presence-container-background").style.background = "#666 url(" + currentrpcinfo[3] + ") 50% 50% / cover no-repeat";
 
                 if (currentrpcinfo[4].includes("True")) {
                     isRPCRunning = true;
