@@ -362,9 +362,10 @@ try {
                     currentrpcinfo[7] = currentrpcinfo[2];
                 }
 
-                if (!currentrpcinfo[3].includes("http") || !currentrpcinfo[3].includes("https"))
-                {
+                let isSite = true;
+                if (!currentrpcinfo[3].includes("http") || !currentrpcinfo[3].includes("https")) {
                     currentrpcinfo[3] = "./assets/" + currentrpcinfo[3] + ".webp";
+                    isSite = false;
                 }
 
                 document.getElementsByClassName("rich-presence-text-first")[0].innerHTML = currentrpcinfo[0];
@@ -374,6 +375,15 @@ try {
                 document.getElementsByClassName("rich-presence-image")[0].setAttribute("title", currentrpcinfo[2]);
 
                 document.getElementById("rich-presence-container-background").style.background = "#666 url(" + currentrpcinfo[3] + ") 50% 50% / cover no-repeat";
+                if (isSite == true) {
+                    document.getElementById("main-container-background").style.background = "url(" + currentrpcinfo[3] + ") 50% 50% / 100000% no-repeat";
+                    document.getElementById("main-container-background").style.filter = "saturate(350%)";
+                    document.getElementById("main-container-background").style.opacity = "0.25";
+                } else {
+                    document.getElementById("main-container-background").style.background = "radial-gradient(circle at 67% 100%, #2e004ddc 0%, #0000 66%), radial-gradient(circle at 0% 100%, #19005fd3 0%, #0000 66%) 50% 50% / cover no-repeat";
+                    document.getElementById("main-container-background").style.filter = "saturate(100%)";
+                    document.getElementById("main-container-background").style.opacity = "1";
+                }
 
                 if (currentrpcinfo[4].includes("True")) {
                     isRPCRunning = true;
