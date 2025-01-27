@@ -4,7 +4,7 @@ let isScrollRunning = false;
 let firstUpdate = true;
 let hasLaunched = false;
 
-let versionNumber = "0.70";
+let versionNumber = "0.701";
 
 function OpenContainer(_container) {
     let _dataContainer = _container + "-data";
@@ -117,7 +117,7 @@ async function RegularlyCheckForListeningDataStats() {
     if (isRegularCheckForListeningDataStats == true) { return; }
     while (true) {
         isRegularCheckForListeningDataStats = true;
-        await sleep(5000);
+        await sleep(30000);
         browser.runtime.sendMessage({
             type: "SEND_TO_APP",
             content: "GET_LISTENINGDATA"
@@ -604,7 +604,9 @@ try {
                     h3Element.style.marginBottom = "4px";
                     statsDataDiv.appendChild(h3Element);
                 }
-                document.getElementById("stats-container").style.height = document.getElementById("stats-container-data").offsetHeight + "px";
+                if (!document.getElementById("stats-container").classList.contains("closed")) {
+                    document.getElementById("stats-container").style.height = document.getElementById("stats-container-data").offsetHeight + "px";
+                }
             }
         }
     });
