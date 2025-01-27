@@ -4,7 +4,7 @@ let isScrollRunning = false;
 let firstUpdate = true;
 let hasLaunched = false;
 
-let versionNumber = 0.6;
+let versionNumber = "0.70";
 
 function OpenContainer(_container) {
     let _dataContainer = _container + "-data";
@@ -50,6 +50,15 @@ function GetFullConfig() {
     browser.runtime.sendMessage({
         type: "SEND_TO_APP",
         content: "GET_CONFIG_FULL"
+    });
+}
+
+function GetListeningDataStats() {
+    console.log("[Popup] Get Listening Data Statistics")
+
+    browser.runtime.sendMessage({
+        type: "SEND_TO_APP",
+        content: "GET_LISTENINGDATA"
     });
 }
 
@@ -99,6 +108,19 @@ async function RegularlyCheckForHeartbeat() {
         browser.runtime.sendMessage({
             type: "GET_POPUP_INFO",
             content: "CHECK_APP_HEARTBEAT"
+        });
+    }
+}
+
+isRegularCheckForListeningDataStats = false;
+async function RegularlyCheckForListeningDataStats() {
+    if (isRegularCheckForListeningDataStats == true) { return; }
+    while (true) {
+        isRegularCheckForListeningDataStats = true;
+        await sleep(5000);
+        browser.runtime.sendMessage({
+            type: "SEND_TO_APP",
+            content: "GET_LISTENINGDATA"
         });
     }
 }
@@ -316,9 +338,12 @@ document.addEventListener("DOMContentLoaded", () => {
     var configContainerToggle = document.getElementById("config-container-toggle");
     var aboutContainer = document.getElementById("about-container");
     var aboutContainerToggle = document.getElementById("about-container-toggle");
+    var statsContainer = document.getElementById("stats-container");
+    var statsContainerToggle = document.getElementById("stats-container-toggle");
 
     configContainerToggle.addEventListener("click", () => { OpenContainer("config-container") });
     aboutContainerToggle.addEventListener("click", () => { OpenContainer("about-container") });
+    statsContainerToggle.addEventListener("click", () => { OpenContainer("stats-container") });
 
     var toggleAbout = document.getElementById("toggle-about");
 
@@ -337,6 +362,7 @@ try {
                 if (hasLaunched == false) {
                     GetRichPresence();
                     GetFullConfig();
+                    GetListeningDataStats();
                 }
                 hasLaunched = true;
                 gotHeartbeatResponse = true;
@@ -543,7 +569,42 @@ try {
                 let versionText = aboutContainer.querySelector("#about-container-data p.plus-main-text");
 
                 versionText.innerHTML = `Version: ${versionNumber} | App Version: ${message.content}`;
-                if (versionNumber != message.content) { document.getElementById("about-container-app-warning").style.display = "block" }
+
+                let shortVersionNumber = versionNumber.slice(0, 4);
+                let shortAppVersionNumber = message.content.slice(0, 4);
+                if (shortVersionNumber != shortAppVersionNumber) { document.getElementById("about-container-app-warning").style.display = "block" }
+            }
+            else if (message.content.includes("LDSTATS: ")) {
+                message.content = message.content.replace("LDSTATS: ", "");
+
+                statsDataDiv = document.getElementById("stats-container-data-object");
+
+                let elements = statsDataDiv.querySelectorAll("h3");
+
+                if (elements != null) {
+                    for (let i = 0; i < elements.length; i++) {
+                        elements[i].remove();
+                    }
+                }
+
+                try { ldstats = JSON.parse(message.content); } catch {
+                    let h3Element = document.createElement("h3");
+                    h3Element.innerHTML = "No data present. Play a song for 60 seconds and enable listening data in configuration if it is disabled.";
+                    h3Element.style.color = "#999";
+                    h3Element.style.marginTop = "4px";
+                    h3Element.style.marginBottom = "4px";
+                    statsDataDiv.appendChild(h3Element);
+                }
+
+                for ([key, value] of Object.entries(ldstats)) {
+                    let h3Element = document.createElement("h3");
+                    h3Element.innerHTML = key + ": " + value;
+                    h3Element.style.color = "#999";
+                    h3Element.style.marginTop = "4px";
+                    h3Element.style.marginBottom = "4px";
+                    statsDataDiv.appendChild(h3Element);
+                }
+                document.getElementById("stats-container").style.height = document.getElementById("stats-container-data").offsetHeight + "px";
             }
         }
     });
@@ -551,3 +612,4 @@ try {
 
 RegularlyCheckForRichPresence();
 RegularlyCheckForHeartbeat();
+RegularlyCheckForListeningDataStats();

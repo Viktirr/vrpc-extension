@@ -13,7 +13,6 @@
 </head>
 
 <body>
-    <!-- TBD: Currently listening, adjust settings from the app -->
     <header id="app-status">
         <h1 id="app-status-text">Unknown</h1>
     </header>
@@ -56,6 +55,18 @@
                 <p class="rich-presence-time-end">0:00</p>
             </div>
         </div>
+        <div id="stats-container" class="droppable-container closed transition-fast">
+            <div id="stats-container-toggle" class="droppable-container-toggle">
+                <img src="assets/chevron-down.svg" viewbox="0 0 24 24" width="24" height="24" class="transition-fast">
+            </div>
+            <div id="stats-container-data">
+                <h2>Stats</h2>
+                <h3 class="plus-main-text">Here's the last listening data information:</h3>
+                    <div id="stats-container-data-object"></div>
+                <h3>There's a 60 second delay so it's expected to see updated results late. To trigger an update you can pause the song.</h3>
+                <h3>This data is saved locally on your computer.</h3>
+            </div>
+        </div>
         <div id="config-container" class="droppable-container closed transition-fast">
             <div id="config-container-toggle" class="droppable-container-toggle">
                 <img src="assets/chevron-down.svg" viewbox="0 0 24 24" width="24" height="24" class="transition-fast">
@@ -86,11 +97,12 @@
                 <h3>The application can also store data of what you've listened to, for how long, which platform you've listened on, etc. You're free to opt-out of this feature by disabling "Enable Listening Data" on Configuration if available. We currently don't upload anywhere and is ONLY stored locally, however uploading is a planned feature.</h3>
                 <h2>Miscellaneous & Disclaimers</h2>
                 <h3>You may access your listening activity if you have Listening Data enabled in:</h3>
-                <h3>%appdata%\VRPCApp\ListeningData.json</h3>
+                <h3>%appdata%\VRPCApp\Data\ListeningData.json</h3>
                 <hr>
                 <h3>Some settings don't always apply immediately. At most you'll have to reload the website that is currently recognised by the extension.</h3>
                 <hr>
                 <h3>Some icons are used from feathericons.com</h3>
+                <h3>This project is possible from projects such as discord-rpc-csharp and Newtonsoft.json</h3>
                 <hr>
                 <h3>VRPC Extension is not affiliated with Discord, YouTube Music or Soundcloud.</h3>
                 <h2>Troubleshooting</h2>
