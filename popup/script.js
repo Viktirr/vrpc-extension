@@ -4,7 +4,7 @@ let isScrollRunning = false;
 let firstUpdate = true;
 let hasLaunched = false;
 
-let versionNumber = "0.701";
+let versionNumber = "0.702";
 
 function OpenContainer(_container) {
     let _dataContainer = _container + "-data";
@@ -103,6 +103,11 @@ async function RegularlyCheckForHeartbeat() {
             document.getElementById("app-status").classList.remove("success");
             document.getElementById("app-status").classList.add("failed");
             document.getElementById("app-status-text").innerHTML = "Failed";
+
+            browser.runtime.sendMessage({
+                type: "GET_POPUP_INFO",
+                content: "CHECK_LAUNCHED"
+            });
         }
         gotHeartbeatResponse = false;
         browser.runtime.sendMessage({
@@ -368,8 +373,26 @@ try {
                 gotHeartbeatResponse = true;
             }
             else if (message.content === "STATUS: FAILED") {
+                browser.runtime.sendMessage({
+                    type: "GET_POPUP_INFO",
+                    content: "CHECK_LAUNCHED"
+                });
                 document.getElementById("app-status").classList.add("failed");
                 document.getElementById("app-status-text").innerHTML = "Failed";
+            }
+            else if (message.content === "STATUS: NOT_LAUNCHED") {
+                let warningContainer = document.getElementById("warning-container");
+                let warningNotLaunchedContainer = document.getElementById("warning-not-launched");
+
+                warningNotLaunchedContainer.style.display = "block";
+                warningContainer.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
+            }
+            else if (message.content === "STATUS: CRASHED") {
+                let warningContainer = document.getElementById("warning-container");
+                let warningCrashedContainer = document.getElementById("warning-crashed");
+
+                warningCrashedContainer.style.display = "block";
+                warningContainer.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
             }
             else if (message.content.includes("RPC: ")) {
                 // Message content should involve: [0] = Song Name, [1] = Artist Name, [2] = Album Name, [3] = Image Link, [4] = Discord RPC Status, [5] = Timestamp Start, [6] = Timestamp End, [7] = Is program receiving RPC?, [8] = Service Name
