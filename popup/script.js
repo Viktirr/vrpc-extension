@@ -4,7 +4,7 @@ let isScrollRunning = false;
 let firstUpdate = true;
 let hasLaunched = false;
 
-let versionNumber = "0.702";
+let versionNumber = "0.703";
 
 function OpenContainer(_container) {
     let _dataContainer = _container + "-data";
