@@ -4,7 +4,8 @@ let isScrollRunning = false;
 let firstUpdate = true;
 let hasLaunched = false;
 
-let versionNumber = "0.703";
+const manifest = browser.runtime.getManifest()
+const versionNumber = manifest.version;
 
 function OpenContainer(_container) {
     let _dataContainer = _container + "-data";
