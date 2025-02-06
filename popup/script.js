@@ -412,9 +412,11 @@ try {
                 }
 
                 let isSite = true;
-                if (!currentrpcinfo[3].includes("http") || !currentrpcinfo[3].includes("https")) {
-                    currentrpcinfo[3] = "./assets/" + currentrpcinfo[3] + ".webp";
-                    isSite = false;
+                if (currentrpcinfo[3]) {
+                    if (!currentrpcinfo[3].includes("http") || !currentrpcinfo[3].includes("https")) {
+                        currentrpcinfo[3] = "./assets/" + currentrpcinfo[3] + ".webp";
+                        isSite = false;
+                    }
                 }
 
                 document.getElementsByClassName("rich-presence-text-first")[0].innerHTML = currentrpcinfo[0];
@@ -619,13 +621,15 @@ try {
                     statsDataDiv.appendChild(h3Element);
                 }
 
-                for ([key, value] of Object.entries(ldstats)) {
-                    let h3Element = document.createElement("h3");
-                    h3Element.innerHTML = key + ": " + value;
-                    h3Element.style.color = "#999";
-                    h3Element.style.marginTop = "4px";
-                    h3Element.style.marginBottom = "4px";
-                    statsDataDiv.appendChild(h3Element);
+                if (ldstats) {
+                    for ([key, value] of Object.entries(ldstats)) {
+                        let h3Element = document.createElement("h3");
+                        h3Element.innerHTML = key + ": " + value;
+                        h3Element.style.color = "#999";
+                        h3Element.style.marginTop = "4px";
+                        h3Element.style.marginBottom = "4px";
+                        statsDataDiv.appendChild(h3Element);
+                    }
                 }
                 if (!document.getElementById("stats-container").classList.contains("closed")) {
                     document.getElementById("stats-container").style.height = document.getElementById("stats-container-data").offsetHeight + "px";
