@@ -426,9 +426,17 @@ try {
                 document.getElementsByClassName("rich-presence-image")[0].setAttribute("src", currentrpcinfo[3]);
                 document.getElementsByClassName("rich-presence-image")[0].setAttribute("title", currentrpcinfo[2]);
 
-                document.getElementById("rich-presence-container-background").style.background = "#666 url(" + currentrpcinfo[3] + ") 50% 50% / cover no-repeat";
+                if (currentrpcinfo[3]) {
+                    document.getElementById("rich-presence-container-background").style.background = "#666 url(" + currentrpcinfo[3] + ") 50% 50% / cover no-repeat";
+                } else {
+                    document.getElementById("rich-presence-container-background").style.background = "#666 50% 50% / cover no-repeat";
+                }
                 if (isSite == true) {
-                    document.getElementById("main-container-background").style.background = "url(" + currentrpcinfo[3] + ") 50% 50% / 100000% no-repeat";
+                    if (currentrpcinfo[3]) {
+                        document.getElementById("main-container-background").style.background = "url(" + currentrpcinfo[3] + ") 50% 50% / 100000% no-repeat";
+                    } else {
+                        document.getElementById("main-container-background").style.background = "#666 50% 50% / 100000% no-repeat";
+                    }
                     document.getElementById("main-container-background").style.filter = "saturate(350%)";
                     document.getElementById("main-container-background").style.opacity = "0.25";
                 } else {
@@ -455,6 +463,7 @@ try {
                     document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive";
                     document.getElementById("rich-presence-container-background").classList.remove("active");
                     document.getElementById("rich-presence-container-background").classList.add("inactive");
+                    document.getElementById("rich-presence-container-background").style.background = "#666 50% 50% / cover no-repeat";
                     if (currentrpcinfo[7].includes("True")) {
                         isRPCShown = true;
                         document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive | App is receiving data | Currently listening on " + currentrpcinfo[8] + ".";
