@@ -103,7 +103,7 @@ async function RegularlyCheckForHeartbeat() {
         if (gotHeartbeatResponse == false) {
             document.getElementById("app-status").classList.remove("success");
             document.getElementById("app-status").classList.add("failed");
-            document.getElementById("app-status-text").innerHTML = "Failed";
+            document.getElementById("app-status-text").textContent = "Failed";
 
             browser.runtime.sendMessage({
                 type: "GET_POPUP_INFO",
@@ -244,7 +244,7 @@ function TestingAsPage() {
 
             let configItemName = document.createElement("h3");
             configItemName.parentElement = configItem;
-            configItemName.innerHTML = key;
+            configItemName.textContent = key;
 
             let configItemValue = document.createElement("div");
             configItemValue.parentElement = configItem;
@@ -297,7 +297,7 @@ function TestingAsPage() {
         for (let key in configInfo) {
             let configItem = document.querySelector(`[configId="${key}"]`);
             let configItemName = configItem.querySelector("h3");
-            configItemName.innerHTML = configInfo[key]["DisplayName"];
+            configItemName.textContent = configInfo[key]["DisplayName"];
 
             if (configInfo[key]["Visibility"] == "Hidden") {
                 configItem.style.display = "none";
@@ -314,7 +314,7 @@ function TestingAsPage() {
 
                 let configItemDescription = document.createElement("p");
                 configItemDescription.parentElement = configItem;
-                configItemDescription.innerHTML = configInfo[key]["Description"];
+                configItemDescription.textContent = configInfo[key]["Description"];
                 configItemTextContainer.appendChild(configItemDescription);
 
                 //Reorder elements
@@ -333,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
             type: "GET_POPUP_INFO",
             content: "CHECK_APP_HEARTBEAT"
         });
-        document.getElementById("app-status-text").innerHTML = "Connecting";
+        document.getElementById("app-status-text").textContent = "Connecting";
         browser.runtime.sendMessage({
             type: "SEND_TO_APP",
             content: "GET_APP_VERSION"
@@ -355,7 +355,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     toggleAbout.addEventListener("click", () => { SwitchToggle("toggle-about") });
 
-    aboutContainer.querySelector("#about-container-data p.plus-main-text").innerHTML = `Version ${versionNumber}`;
+    aboutContainer.querySelector("#about-container-data p.plus-main-text").textContent = `Version ${versionNumber}`;
 }, { once: true });
 
 try {
@@ -364,7 +364,7 @@ try {
             console.log("[Popup] Received: " + message.content);
             if (message.content === "STATUS: ALIVE") {
                 document.getElementById("app-status").classList.add("success");
-                document.getElementById("app-status-text").innerHTML = "Connected";
+                document.getElementById("app-status-text").textContent = "Connected";
                 if (hasLaunched == false) {
                     GetRichPresence();
                     GetFullConfig();
@@ -379,7 +379,7 @@ try {
                     content: "CHECK_LAUNCHED"
                 });
                 document.getElementById("app-status").classList.add("failed");
-                document.getElementById("app-status-text").innerHTML = "Failed";
+                document.getElementById("app-status-text").textContent = "Failed";
             }
             else if (message.content === "STATUS: NOT_LAUNCHED") {
                 let warningContainer = document.getElementById("warning-container");
@@ -420,9 +420,9 @@ try {
                     }
                 }
 
-                document.getElementsByClassName("rich-presence-text-first")[0].innerHTML = currentrpcinfo[0];
-                document.getElementsByClassName("rich-presence-text-second")[0].innerHTML = currentrpcinfo[1];
-                document.getElementsByClassName("rich-presence-text-third")[0].innerHTML = currentrpcinfo[2];
+                document.getElementsByClassName("rich-presence-text-first")[0].textContent = currentrpcinfo[0];
+                document.getElementsByClassName("rich-presence-text-second")[0].textContent = currentrpcinfo[1];
+                document.getElementsByClassName("rich-presence-text-third")[0].textContent = currentrpcinfo[2];
                 document.getElementsByClassName("rich-presence-image")[0].setAttribute("src", currentrpcinfo[3]);
                 document.getElementsByClassName("rich-presence-image")[0].setAttribute("title", currentrpcinfo[2]);
 
@@ -448,7 +448,7 @@ try {
                 if (currentrpcinfo[4].includes("True")) {
                     isRPCRunning = true;
                     isRPCShown = true;
-                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is active | Currently listening on " + currentrpcinfo[8] + ".";
+                    document.getElementsByClassName("rich-presence-status-text")[0].textContent = "Rich presence is active | Currently listening on " + currentrpcinfo[8] + ".";
                     document.getElementById("rich-presence-container").classList.add("active");
                     document.getElementById("rich-presence-container").classList.remove("inactive");
                     document.getElementById("rich-presence-discord-status-image").classList.add("success");
@@ -460,13 +460,13 @@ try {
                 }
                 else {
                     isRPCRunning = false;
-                    document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive";
+                    document.getElementsByClassName("rich-presence-status-text")[0].textContent = "Rich presence is inactive";
                     document.getElementById("rich-presence-container-background").classList.remove("active");
                     document.getElementById("rich-presence-container-background").classList.add("inactive");
                     document.getElementById("rich-presence-container-background").style.background = "#666 50% 50% / cover no-repeat";
                     if (currentrpcinfo[7].includes("True")) {
                         isRPCShown = true;
-                        document.getElementsByClassName("rich-presence-status-text")[0].innerHTML = "Rich presence is inactive | App is receiving data | Currently listening on " + currentrpcinfo[8] + ".";
+                        document.getElementsByClassName("rich-presence-status-text")[0].textContent = "Rich presence is inactive | App is receiving data | Currently listening on " + currentrpcinfo[8] + ".";
                         document.getElementById("rich-presence-container").classList.add("active");
                         document.getElementById("rich-presence-container").classList.remove("inactive");
                         document.getElementById("rich-presence-discord-status-image").classList.add("failed");
@@ -488,11 +488,11 @@ try {
                 let songDuration = parseInt(currentrpcinfo[6]) - parseInt(currentrpcinfo[5]);
 
                 if ((currentTime - currentrpcinfo[5]) > songDuration) {
-                    document.getElementsByClassName("rich-presence-time-start")[0].innerHTML = ConvertIntoTimestamp(songDuration);
+                    document.getElementsByClassName("rich-presence-time-start")[0].textContent = ConvertIntoTimestamp(songDuration);
                 } else {
-                    document.getElementsByClassName("rich-presence-time-start")[0].innerHTML = ConvertIntoTimestamp(currentTime - currentrpcinfo[5]);
+                    document.getElementsByClassName("rich-presence-time-start")[0].textContent = ConvertIntoTimestamp(currentTime - currentrpcinfo[5]);
                 }
-                document.getElementsByClassName("rich-presence-time-end")[0].innerHTML = ConvertIntoTimestamp(songDuration);
+                document.getElementsByClassName("rich-presence-time-end")[0].textContent = ConvertIntoTimestamp(songDuration);
 
                 let percentage = (((currentTime - currentrpcinfo[5]) - 0) / (songDuration - 0) * 100);
 
@@ -512,7 +512,7 @@ try {
 
                     let configItemName = document.createElement("h3");
                     configItemName.parentElement = configItem;
-                    configItemName.innerHTML = key;
+                    configItemName.textContent = key;
 
                     let configItemValue = document.createElement("div");
                     configItemValue.parentElement = configItem;
@@ -573,7 +573,7 @@ try {
 
                 let configItem = document.querySelector(`[configId="${configId}"]`);
                 let configItemName = configItem.querySelector("h3");
-                configItemName.innerHTML = configInfo["DisplayName"];
+                configItemName.textContent = configInfo["DisplayName"];
 
                 if (configInfo["Visibility"] == "Hidden") {
                     configItem.style.display = "none";
@@ -590,7 +590,7 @@ try {
 
                     let configItemDescription = document.createElement("p");
                     configItemDescription.parentElement = configItem;
-                    configItemDescription.innerHTML = configInfo["Description"];
+                    configItemDescription.textContent = configInfo["Description"];
                     configItemTextContainer.appendChild(configItemDescription);
 
                     //Reorder elements
@@ -603,7 +603,7 @@ try {
                 var aboutContainer = document.getElementById("about-container");
                 let versionText = aboutContainer.querySelector("#about-container-data p.plus-main-text");
 
-                versionText.innerHTML = `Version: ${versionNumber} | App Version: ${message.content}`;
+                versionText.textContent = `Version: ${versionNumber} | App Version: ${message.content}`;
 
                 let shortVersionNumber = versionNumber.slice(0, 4);
                 let shortAppVersionNumber = message.content.slice(0, 4);
@@ -624,7 +624,7 @@ try {
 
                 try { ldstats = JSON.parse(message.content); } catch {
                     let h3Element = document.createElement("h3");
-                    h3Element.innerHTML = "No data present. Play a song for 60 seconds and enable listening data in configuration if it is disabled.";
+                    h3Element.textContent = "No data present. Play a song for 60 seconds and enable listening data in configuration if it is disabled.";
                     h3Element.style.color = "#999";
                     h3Element.style.marginTop = "4px";
                     h3Element.style.marginBottom = "4px";
@@ -634,7 +634,7 @@ try {
                 if (ldstats) {
                     for ([key, value] of Object.entries(ldstats)) {
                         let h3Element = document.createElement("h3");
-                        h3Element.innerHTML = key + ": " + value;
+                        h3Element.textContent = key + ": " + value;
                         h3Element.style.color = "#999";
                         h3Element.style.marginTop = "4px";
                         h3Element.style.marginBottom = "4px";
