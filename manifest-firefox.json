@@ -1,8 +1,8 @@
 {
-  "description": "VRPC Browser Extension to connect to App and seek details from websites.",
+  "description": "Seek interactive details from websites to use as Discord Rich Presence, or to store your activity locally.",
   "manifest_version": 2,
   "name": "VRPC Extension",
-  "version": "1.0",
+  "version": "8.71",
   "icons": {
     "48": "icons/vlogorpc.ico"
   },
