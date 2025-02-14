@@ -9,18 +9,18 @@
     --green: #009900;
     --red: #990000;
 
-    --height: 400px;
+    --height: 500px;
     --width: 300px;
 }
 
 body {
     background-color: var(--background);
     font-family: "Raleway", Arial, sans-serif;
-    height: 400px;
+    height: var(--height);
     margin: 0;
     overflow: hidden;
     padding: 0;
-    width: 300px;
+    width: var(--width);
 }
 
 header {
@@ -314,7 +314,7 @@ h3 {
 
 #main-container {
     border-radius: 1em;
-    height: 340px;
+    height: calc(var(--height) - 60px);
     overflow: scroll;
     scrollbar-width: none;
 }
