@@ -2,7 +2,7 @@
   "description": "Seek interactive details from websites to use as Discord Rich Presence, or to store your activity locally.",
   "manifest_version": 2,
   "name": "VRPC Extension",
-  "version": "0.71",
+  "version": "0.711",
   "icons": {
     "500": "icons/vlogorpc.webp"
   },
