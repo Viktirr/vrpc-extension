@@ -701,11 +701,11 @@ try {
                                 value_text = display_time(value);
                                 break;
                             case "daymostplayed":
-                                key_text = "The day you most played this song";
+                                key_text = "Day Most Played";
                                 value_text = display_day(value);
                                 break;
                             case "daymostplayedtimelistened":
-                                key_text = "Time listened on the day you most played this song";
+                                key_text = "Time Listened on Day Most Played";
                                 value_text = display_time(value);
                                 break;
                             case "isvideo":
@@ -717,7 +717,7 @@ try {
                                 value_text = value;
                                 break;
                             case "lastplatformlistenedon":
-                                key_text = "Last platform you listened on";
+                                key_text = "Platform";
                                 value_text = value;
                                 break;
                         }
@@ -738,7 +738,6 @@ try {
 
                 if (!document.getElementById("stats-container").classList.contains("closed")) {
                     let height = document.getElementById("stats-container-data").offsetHeight;
-                    height = height + 24;
                     document.getElementById("stats-container").style.height = height + "px";
                 }
             }
