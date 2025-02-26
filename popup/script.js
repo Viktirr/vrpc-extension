@@ -333,21 +333,21 @@ function display_day(value) {
 
 function display_time(value) {
     if (value === 0) return '0 seconds';
-    
+
     const units = [
         { value2: Math.floor(value / 86400), label: 'day' },
         { value2: Math.floor((value % 86400) / 3600), label: 'hour' },
         { value2: Math.floor((value % 3600) / 60), label: 'minute' },
         { value2: value % 60, label: 'second' }
     ];
-    
+
     const parts = units.map(unit => {
         if (unit.value2 === 0) return null;
         return `${unit.value2} ${unit.label}${unit.value2 !== 1 ? 's' : ''}`;
     }).filter(part => part !== null);
-    
+
     if (parts.length === 1) return parts[0];
-    
+
     const last = parts.pop();
     return `${parts.join(', ')} and ${last}`;
 }
@@ -453,6 +453,11 @@ try {
                         currentrpcinfo[3] = "./assets/" + currentrpcinfo[3] + ".webp";
                         isSite = false;
                     }
+                } else {
+                    isSite = false;
+                }
+                if (currentrpcinfo[7] == "False") {
+                    isSite = false;
                 }
 
                 document.getElementsByClassName("rich-presence-text-first")[0].textContent = currentrpcinfo[0];
@@ -670,8 +675,7 @@ try {
                     for ([key, value] of Object.entries(ldstats)) {
                         let key_text;
                         let value_text;
-                        switch (key)
-                        {
+                        switch (key) {
                             case "name":
                                 key_text = "Name";
                                 value_text = value;
