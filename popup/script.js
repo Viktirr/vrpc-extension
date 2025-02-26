@@ -123,7 +123,7 @@ async function RegularlyCheckForListeningDataStats() {
     if (isRegularCheckForListeningDataStats == true) { return; }
     while (true) {
         isRegularCheckForListeningDataStats = true;
-        await sleep(30000);
+        await sleep(5000);
         browser.runtime.sendMessage({
             type: "SEND_TO_APP",
             content: "GET_LISTENINGDATA"
@@ -633,6 +633,46 @@ try {
 
                 if (ldstats) {
                     for ([key, value] of Object.entries(ldstats)) {
+                        switch (key)
+                        {
+                            case "name":
+                                key = "Name";
+                                break;
+                            case "author":
+                                key = "Author";
+                                break;
+                            case "key":
+                                key = "Key";
+                                break;
+                            case "timelistened":
+                                key = "Time Listened";
+                                break;
+                            case "firstlistened":
+                                key = "First Listened";
+                                break;
+                            case "lastplayed":
+                                key = "Last Played";
+                                break;
+                            case "daylastplayedtimelistened":
+                                key = "Time Listened on the day you last listened to this song";
+                                break;
+                            case "daymostplayed":
+                                key = "The day you most played a song";
+                                break;
+                            case "daymostplayedtimelistened":
+                                key = "Time listened on the day you most played a song";
+                                break;
+                            case "isvideo":
+                                key = "Video"
+                                break;
+                            case "songurl":
+                                key = "Song URL";
+                                break;
+                            case "lastplatformlistenedon":
+                                key = "Last platform you listened on";
+                                break;
+                        }
+                        
                         let h3Element = document.createElement("h3");
                         h3Element.textContent = key + ": " + value;
                         h3Element.style.color = "#999";
