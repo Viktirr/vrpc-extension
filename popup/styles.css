@@ -5,6 +5,7 @@
     --background-complement: #28282899;
     --background-complement-secondary: #626262;
     --white: #ffffff;
+    --white2: #dedede;
     --gray: #999999;
     --green: #009900;
     --red: #990000;
@@ -306,7 +307,7 @@ h2 {
 }
 
 h3 {
-    color: #DEDEDE;
+    color: var(--white2);
     font-size: 12px;
     font-weight: 600;
     margin: 12px 16px;

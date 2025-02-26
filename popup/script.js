@@ -324,6 +324,40 @@ function TestingAsPage() {
     });
 }
 
+// Functions to be used with listening data
+function display_day(value) {
+    let timestamp = value * 86400 * 1000;
+    let date = new Date(timestamp);
+    return date.toLocaleDateString();
+}
+
+function display_time(value) {
+    if (value === 0) return '0 seconds';
+    
+    const units = [
+        { value2: Math.floor(value / 86400), label: 'day' },
+        { value2: Math.floor((value % 86400) / 3600), label: 'hour' },
+        { value2: Math.floor((value % 3600) / 60), label: 'minute' },
+        { value2: value % 60, label: 'second' }
+    ];
+    
+    const parts = units.map(unit => {
+        if (unit.value2 === 0) return null;
+        return `${unit.value2} ${unit.label}${unit.value2 !== 1 ? 's' : ''}`;
+    }).filter(part => part !== null);
+    
+    if (parts.length === 1) return parts[0];
+    
+    const last = parts.pop();
+    return `${parts.join(', ')} and ${last}`;
+}
+
+function display_datetime(value) {
+    let timestamp = value * 1000;
+    let date = new Date(timestamp);
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+}
+
 
 
 // On start popup
@@ -633,52 +667,71 @@ try {
 
                 if (ldstats) {
                     for ([key, value] of Object.entries(ldstats)) {
+                        let key_text;
+                        let value_text;
                         switch (key)
                         {
                             case "name":
-                                key = "Name";
+                                key_text = "Name";
+                                value_text = value;
                                 break;
                             case "author":
-                                key = "Author";
+                                key_text = "Author";
+                                value_text = value;
                                 break;
                             case "key":
-                                key = "Key";
+                                key_text = "Key";
+                                value_text = value;
                                 break;
                             case "timelistened":
-                                key = "Time Listened";
+                                key_text = "Time Listened";
+                                value_text = display_time(value);
                                 break;
                             case "firstlistened":
-                                key = "First Listened";
+                                key_text = "First Listened";
+                                value_text = display_datetime(value);
                                 break;
                             case "lastplayed":
-                                key = "Last Played";
+                                key_text = "Last Played";
+                                value_text = display_datetime(value);
                                 break;
                             case "daylastplayedtimelistened":
-                                key = "Time Listened on the day you last listened to this song";
+                                key_text = "Time Listened Today";
+                                value_text = display_time(value);
                                 break;
                             case "daymostplayed":
-                                key = "The day you most played a song";
+                                key_text = "The day you most played this song";
+                                value_text = display_day(value);
                                 break;
                             case "daymostplayedtimelistened":
-                                key = "Time listened on the day you most played a song";
+                                key_text = "Time listened on the day you most played this song";
+                                value_text = display_time(value);
                                 break;
                             case "isvideo":
-                                key = "Video"
+                                key_text = "Video"
+                                value_text = value;
                                 break;
                             case "songurl":
-                                key = "Song URL";
+                                key_text = "Song URL";
+                                value_text = value;
                                 break;
                             case "lastplatformlistenedon":
-                                key = "Last platform you listened on";
+                                key_text = "Last platform you listened on";
+                                value_text = value;
                                 break;
                         }
-                        
+
                         let h3Element = document.createElement("h3");
-                        h3Element.textContent = key + ": " + value;
+                        h3Element.textContent = key_text + ": ";
                         h3Element.style.color = "#999";
                         h3Element.style.marginTop = "4px";
                         h3Element.style.marginBottom = "4px";
                         statsDataDiv.appendChild(h3Element);
+
+                        let spanElement = document.createElement("span");
+                        spanElement.textContent = value_text;
+                        spanElement.style.color = "#dedede";
+                        h3Element.appendChild(spanElement)
                     }
                 }
                 if (!document.getElementById("stats-container").classList.contains("closed")) {
