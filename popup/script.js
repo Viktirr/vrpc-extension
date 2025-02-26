@@ -399,6 +399,7 @@ try {
             if (message.content === "STATUS: ALIVE") {
                 document.getElementById("app-status").classList.add("success");
                 document.getElementById("app-status-text").textContent = "Connected";
+                document.getElementById("stats-container").style.display = "flex";
                 if (hasLaunched == false) {
                     GetRichPresence();
                     GetFullConfig();
@@ -734,8 +735,11 @@ try {
                         h3Element.appendChild(spanElement)
                     }
                 }
+
                 if (!document.getElementById("stats-container").classList.contains("closed")) {
-                    document.getElementById("stats-container").style.height = document.getElementById("stats-container-data").offsetHeight + "px";
+                    let height = document.getElementById("stats-container-data").offsetHeight;
+                    height = height + 24;
+                    document.getElementById("stats-container").style.height = height + "px";
                 }
             }
         }
