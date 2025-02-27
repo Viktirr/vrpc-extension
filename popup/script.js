@@ -484,10 +484,12 @@ try {
                     }
                     document.getElementById("main-container-background").style.filter = "saturate(350%)";
                     document.getElementById("main-container-background").style.opacity = "0.25";
+                    document.getElementById("main-container-background").style.transition = "background-image 0.5s";
                 } else {
                     document.getElementById("main-container-background").style.background = "radial-gradient(circle at 67% 100%, #2e004ddc 0%, #0000 66%), radial-gradient(circle at 0% 100%, #19005fd3 0%, #0000 66%) 50% 50% / cover no-repeat";
                     document.getElementById("main-container-background").style.filter = "saturate(100%)";
                     document.getElementById("main-container-background").style.opacity = "1";
+                    document.getElementById("main-container-background").style.transition = "0";
                 }
 
                 if (currentrpcinfo[4].includes("True")) {
