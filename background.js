@@ -1,3 +1,8 @@
+// Chrome support
+if (typeof browser === 'undefined') {
+  var browser = chrome;
+}
+
 let port = browser.runtime.connectNative("vrpc");
 
 let hadLaunched = false;

@@ -1,3 +1,8 @@
+// Chrome support
+if (typeof browser === 'undefined') {
+  var browser = chrome;
+}
+
 console.log('YouTube Music script is running.');
 browser.runtime.sendMessage({
   type: "SET_STATUS_INFO",
@@ -135,7 +140,7 @@ if (document.readyState === "complete") {
   });
 }
 
-window.addEventListener("unload", () => {
+window.addEventListener("beforeunload", () => {
   browser.runtime.sendMessage({
     type: "SET_STATUS_INFO",
     content: "YouTube Music\nClosed"

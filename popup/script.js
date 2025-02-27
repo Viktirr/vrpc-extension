@@ -1,3 +1,8 @@
+// Chrome support
+if (typeof browser === 'undefined') {
+    var browser = chrome;
+}
+
 let isRPCRunning = false;
 let isRPCShown = false;
 let isScrollRunning = false;
