@@ -13,7 +13,7 @@ const SELECTORS = {
   PLAYER_BAR: "ytmusic-player-bar",
   SONG_TITLE: 'div.middle-controls div.content-info-wrapper yt-formatted-string',
   SONG_DURATION: 'div#left-controls span.time-info',
-  PLAY_PAUSE_BUTTON: 'div#left-controls tp-yt-paper-icon-button#play-pause-button',
+  PLAY_PAUSE_BUTTON: 'div#left-controls yt-icon-button#play-pause-button',
   THUMBNAIL_IMG: 'div.middle-controls div.thumbnail-image-wrapper img.image',
   SONG_INFO: 'div.middle-controls div.content-info-wrapper span.ytmusic-player-bar span.subtitle yt-formatted-string',
   ARTIST_LINK: 'div.middle-controls div.content-info-wrapper span.ytmusic-player-bar span.subtitle yt-formatted-string a.yt-formatted-string'
