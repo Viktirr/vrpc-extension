@@ -617,10 +617,16 @@ try {
 
                 let configInfo = JSON.parse(message.content);
                 let configId = configInfo["InternalName"];
-
+                
                 let configItem = document.querySelector(`[configId="${configId}"]`);
+                
                 let configItemName = configItem.querySelector("h3");
                 configItemName.textContent = configInfo["DisplayName"];
+
+                if (configInfo["Type"] == "category") {
+                    configItem.querySelector("h3").style.fontSize = "16px";
+                    configItem.querySelector("div").remove();
+                }
 
                 if (configInfo["Visibility"] == "Hidden") {
                     configItem.style.display = "none";
