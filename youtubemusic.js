@@ -47,7 +47,7 @@ function getCurrentState() {
 
     // Play/Pause state
     const playButton = document.querySelector(SELECTORS.PLAY_PAUSE_BUTTON);
-    const isPlaying = playButton?.getAttribute("title") === "Pause";
+    const isPlaying = playButton?.getAttribute("title") === "Pause" || window.getComputedStyle(playButton).display === "none";
     state.status = isPlaying ? "Playing" : "Paused";
 
     // Thumbnail
