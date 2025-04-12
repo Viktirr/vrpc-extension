@@ -50,12 +50,12 @@ function runObserver() {
 
                 //if (smallSongBannerUrl && smallSongBannerUrl[1]) { console.log(smallSongBannerUrl[1]); }
 
-                console.log(songStatus);
-                console.log("Song Title: " + songTitle);
-                console.log("Duration: " + songDuration.getAttribute("aria-valuenow") + " / " + songDuration.getAttribute("aria-valuemax"));
-                console.log(songUrl);
-                console.log(songArtist);
-                console.log(smallSongBannerUrl[1]);
+                // console.log(songStatus);
+                // console.log("Song Title: " + songTitle);
+                // console.log("Duration: " + songDuration.getAttribute("aria-valuenow") + " / " + songDuration.getAttribute("aria-valuemax"));
+                // console.log(songUrl);
+                // console.log(songArtist);
+                // console.log(smallSongBannerUrl[1]);
 
                 if ((songTitle.innerText != previousSongTitle) || (previousSongDuration != songDuration.innerText) || (songStatus != previousSongStatus)) {
                     browser.runtime.sendMessage({
