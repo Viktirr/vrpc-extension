@@ -737,6 +737,9 @@ try {
                                 key_text = "Platform";
                                 value_text = value;
                                 break;
+                            case "songduration":
+                                key_text = "Song Duration";
+                                value_text = display_time(value);
                         }
 
                         let h3Element = document.createElement("h3");
