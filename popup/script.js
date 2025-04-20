@@ -617,9 +617,9 @@ try {
 
                 let configInfo = JSON.parse(message.content);
                 let configId = configInfo["InternalName"];
-                
+
                 let configItem = document.querySelector(`[configId="${configId}"]`);
-                
+
                 let configItemName = configItem.querySelector("h3");
                 configItemName.textContent = configInfo["DisplayName"];
 
@@ -675,88 +675,87 @@ try {
                     }
                 }
 
-                try { ldstats = JSON.parse(message.content); } catch {
-                    let h3Element = document.createElement("h3");
-                    h3Element.textContent = "No data present. Play a song for 60 seconds and enable listening data in configuration if it is disabled.";
-                    h3Element.style.color = "#999";
-                    h3Element.style.marginTop = "4px";
-                    h3Element.style.marginBottom = "4px";
-                    statsDataDiv.appendChild(h3Element);
-                }
-
-                if (ldstats) {
-                    for ([key, value] of Object.entries(ldstats)) {
-                        let key_text;
-                        let value_text;
-                        switch (key) {
-                            case "name":
-                                key_text = "Name";
-                                value_text = value;
-                                break;
-                            case "author":
-                                key_text = "Author";
-                                value_text = value;
-                                break;
-                            case "key":
-                                key_text = "Key";
-                                value_text = value;
-                                break;
-                            case "timelistened":
-                                key_text = "Time Listened";
-                                value_text = display_time(value);
-                                break;
-                            case "firstlistened":
-                                key_text = "First Listened";
-                                value_text = display_datetime(value);
-                                break;
-                            case "lastplayed":
-                                key_text = "Last Played";
-                                value_text = display_datetime(value);
-                                break;
-                            case "daylastplayedtimelistened":
-                                key_text = "Time Listened Today";
-                                value_text = display_time(value);
-                                break;
-                            case "daymostplayed":
-                                key_text = "Day Most Played";
-                                value_text = display_day(value);
-                                break;
-                            case "daymostplayedtimelistened":
-                                key_text = "Time Listened on Day Most Played";
-                                value_text = display_time(value);
-                                break;
-                            case "isvideo":
-                                key_text = "Video"
-                                value_text = value;
-                                break;
-                            case "songurl":
-                                key_text = "Song URL";
-                                value_text = value;
-                                break;
-                            case "lastplatformlistenedon":
-                                key_text = "Platform";
-                                value_text = value;
-                                break;
-                            case "songduration":
-                                key_text = "Song Duration";
-                                value_text = display_time(value);
+                let hasData = false;
+                try {
+                    ldstats = JSON.parse(message.content);
+                    if (ldstats && Object.keys(ldstats).length > 0) {
+                        hasData = true;
+                        for ([key, value] of Object.entries(ldstats)) {
+                            let key_text;
+                            let value_text;
+                            switch (key) {
+                                case "name":
+                                    key_text = "Name";
+                                    value_text = value;
+                                    break;
+                                case "author":
+                                    key_text = "Author";
+                                    value_text = value;
+                                    break;
+                                case "key":
+                                    key_text = "Key";
+                                    value_text = value;
+                                    break;
+                                case "timelistened":
+                                    key_text = "Time Listened";
+                                    value_text = display_time(value);
+                                    break;
+                                case "firstlistened":
+                                    key_text = "First Listened";
+                                    value_text = display_datetime(value);
+                                    break;
+                                case "lastplayed":
+                                    key_text = "Last Played";
+                                    value_text = display_datetime(value);
+                                    break;
+                                case "daylastplayedtimelistened":
+                                    key_text = "Time Listened Today";
+                                    value_text = display_time(value);
+                                    break;
+                                case "daymostplayed":
+                                    key_text = "Day Most Played";
+                                    value_text = display_day(value);
+                                    break;
+                                case "daymostplayedtimelistened":
+                                    key_text = "Time Listened on Day Most Played";
+                                    value_text = display_time(value);
+                                    break;
+                                case "isvideo":
+                                    key_text = "Video";
+                                    value_text = value;
+                                    break;
+                                case "songurl":
+                                    key_text = "Song URL";
+                                    value_text = value;
+                                    break;
+                                case "lastplatformlistenedon":
+                                    key_text = "Platform";
+                                    value_text = value;
+                                    break;
+                                case "songduration":
+                                    key_text = "Song Duration";
+                                    value_text = display_time(value);
+                            }
+                            let h3Element = document.createElement("h3");
+                            h3Element.textContent = key_text + ": ";
+                            h3Element.style.color = "#999";
+                            h3Element.style.marginTop = "4px";
+                            h3Element.style.marginBottom = "4px";
+                            statsDataDiv.appendChild(h3Element);
+                            let spanElement = document.createElement("span");
+                            spanElement.textContent = value_text;
+                            spanElement.style.color = "#dedede";
+                            h3Element.appendChild(spanElement);
                         }
-
-                        let h3Element = document.createElement("h3");
-                        h3Element.textContent = key_text + ": ";
-                        h3Element.style.color = "#999";
-                        h3Element.style.marginTop = "4px";
-                        h3Element.style.marginBottom = "4px";
-                        statsDataDiv.appendChild(h3Element);
-
-                        let spanElement = document.createElement("span");
-                        spanElement.textContent = value_text;
-                        spanElement.style.color = "#dedede";
-                        h3Element.appendChild(spanElement)
                     }
+                } catch (e) {
+                    // Parsing failed, no data
+                    hasData = false;
                 }
-
-                if (!document.getElementById("stats-container").classList.contains("closed")) {
+                // Hide or show the stats container based on data presence
+                document.getElementById("stats-container").style.display = hasData ? "flex" : "none";
+                // Adjust container height if open
+                if (hasData && !document.getElementById("stats-container").classList.contains("closed")) {
                     let height = document.getElementById("stats-container-data").offsetHeight;
                     document.getElementById("stats-container").style.height = height + "px";
                 }
