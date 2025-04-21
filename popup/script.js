@@ -337,21 +337,38 @@ function display_day(value) {
 }
 
 function display_time(value) {
-    if (value === 0) return '0 seconds';
+    if (value === 0 || value == null) {
+        return '0 seconds';
+    }
+
+    const numericValue = Number(value);
+
+     if (!Number.isFinite(numericValue) || numericValue < 0) {
+         return '0 seconds';
+     }
 
     const units = [
-        { value2: Math.floor(value / 86400), label: 'day' },
-        { value2: Math.floor((value % 86400) / 3600), label: 'hour' },
-        { value2: Math.floor((value % 3600) / 60), label: 'minute' },
-        { value2: value % 60, label: 'second' }
+        { value2: Math.floor(numericValue / 86400), label: 'day' },
+        { value2: Math.floor((numericValue % 86400) / 3600), label: 'hour' },
+        { value2: Math.floor((numericValue % 3600) / 60), label: 'minute' },
+        { value2: numericValue % 60, label: 'second' }
     ];
 
     const parts = units.map(unit => {
-        if (unit.value2 === 0) return null;
-        return `${unit.value2} ${unit.label}${unit.value2 !== 1 ? 's' : ''}`;
+        if (unit.value2 === 0 || !Number.isFinite(unit.value2)) {
+            return null;
+        }
+
+        return `${unit.value2} ${unit.label}${Math.floor(unit.value2) !== 1 ? 's' : ''}`;
     }).filter(part => part !== null);
 
-    if (parts.length === 1) return parts[0];
+    if (parts.length === 0) {
+        return '0 seconds';
+    }
+
+    if (parts.length === 1) {
+        return parts[0];
+    }
 
     const last = parts.pop();
     return `${parts.join(', ')} and ${last}`;
@@ -749,12 +766,10 @@ try {
                         }
                     }
                 } catch (e) {
-                    // Parsing failed, no data
                     hasData = false;
                 }
-                // Hide or show the stats container based on data presence
                 document.getElementById("stats-container").style.display = hasData ? "flex" : "none";
-                // Adjust container height if open
+
                 if (hasData && !document.getElementById("stats-container").classList.contains("closed")) {
                     let height = document.getElementById("stats-container-data").offsetHeight;
                     document.getElementById("stats-container").style.height = height + "px";
