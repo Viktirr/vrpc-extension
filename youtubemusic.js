@@ -18,6 +18,7 @@ const SELECTORS = {
 let previousState = {
   title: "",
   duration: "",
+  currentTime: "",
   status: "",
   info: ""
 };
@@ -73,7 +74,8 @@ function getCurrentState() {
     state.hasChanged = state.title !== previousState.title ||
       state.duration !== previousState.duration ||
       state.status !== previousState.status ||
-      state.artist !== previousState.artist;
+      state.artist !== previousState.artist ||
+      state.currentTime !== previousState.currentTime;
   } catch (error) {
     console.error("Error retrieving player state:", error);
   }
