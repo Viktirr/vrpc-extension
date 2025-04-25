@@ -29,6 +29,10 @@ port.onMessage.addListener((response) => {
     });
     return;
   }
+  browser.runtime.sendMessage({
+    type: "SEND_POPUP_INFO",
+    content: response
+  });
 });
 
 // Check if the app is running

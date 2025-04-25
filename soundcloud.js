@@ -40,7 +40,7 @@ function runObserver() {
                 songStatus = PlayControlsDiv.querySelector('div.playControls__elements button.playControls__play');
 
                 songId = songInformationDiv.querySelector('a.playbackSoundBadge__avatar').getAttribute("href");
-                songUrl = "https://soundcloud.com/" + songId;
+                songUrl = "https://soundcloud.com" + songId;
 
                 if (songStatus.classList.contains('playing')) {
                     songStatus = "Playing";
