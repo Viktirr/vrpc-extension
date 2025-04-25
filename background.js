@@ -7,6 +7,7 @@ let port = browser.runtime.connectNative("vrpc");
 
 let hadLaunched = false;
 let AppActive = false;
+let appLocked = false;
 
 port.onMessage.addListener((response) => {
   console.log("Received: " + response);
@@ -19,16 +20,28 @@ port.onMessage.addListener((response) => {
     });
     return;
   }
-  browser.runtime.sendMessage({
-    type: "SEND_POPUP_INFO",
-    content: response
-  });
+  if (response === "PROGRAM: LOCK")
+  {
+    appLocked = true;
+    browser.runtime.sendMessage({
+      type: "SEND_POPUP_INFO",
+      content: "STATUS: LOCKED"
+    });
+    return;
+  }
 });
 
 // Check if the app is running
 function CheckAppHeartbeat() {
+  if (appLocked) {
+    browser.runtime.sendMessage({
+      type: "SEND_POPUP_INFO",
+      content: "STATUS: LOCKED"
+    });
+    return;
+  }
   const timeoutAppResponse = setTimeout(() => {
-    if (AppActive == true) {
+    if (AppActive == true || appLocked == true) {
       clearTimeout(timeoutAppResponse);
       return;
     }
@@ -45,6 +58,9 @@ function CheckAppHeartbeat() {
 }
 
 function CheckLaunched() {
+  if (appLocked == true) {
+    return;
+  }
   if (hadLaunched == false) {
     browser.runtime.sendMessage({
       type: "SEND_POPUP_INFO",

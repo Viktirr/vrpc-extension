@@ -452,6 +452,13 @@ try {
                 warningCrashedContainer.style.display = "block";
                 warningContainer.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
             }
+            else if (message.content === "STATUS: LOCKED") {
+                let warningContainer = document.getElementById("warning-container");
+                let warningLockedContainer = document.getElementById("warning-app-locked");
+    
+                warningLockedContainer.style.display = "block";
+                warningContainer.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
+            }
             else if (message.content.includes("RPC: ")) {
                 // Message content should involve: [0] = Song Name, [1] = Artist Name, [2] = Album Name, [3] = Image Link, [4] = Discord RPC Status, [5] = Timestamp Start, [6] = Timestamp End, [7] = Is program receiving RPC?, [8] = Service Name
                 message.content = message.content.replace("RPC: ", "");
