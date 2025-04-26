@@ -343,9 +343,9 @@ function display_time(value) {
 
     const numericValue = Number(value);
 
-     if (!Number.isFinite(numericValue) || numericValue < 0) {
-         return '0 seconds';
-     }
+    if (!Number.isFinite(numericValue) || numericValue < 0) {
+        return '0 seconds';
+    }
 
     const units = [
         { value2: Math.floor(numericValue / 86400), label: 'day' },
@@ -421,7 +421,6 @@ try {
             if (message.content === "STATUS: ALIVE") {
                 document.getElementById("app-status").classList.add("success");
                 document.getElementById("app-status-text").textContent = "Connected";
-                document.getElementById("stats-container").style.display = "flex";
                 if (hasLaunched == false) {
                     GetRichPresence();
                     GetFullConfig();
@@ -455,7 +454,7 @@ try {
             else if (message.content === "STATUS: LOCKED") {
                 let warningContainer = document.getElementById("warning-container");
                 let warningLockedContainer = document.getElementById("warning-app-locked");
-    
+
                 warningLockedContainer.style.display = "block";
                 warningContainer.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
             }
@@ -759,6 +758,7 @@ try {
                                 case "songduration":
                                     key_text = "Song Duration";
                                     value_text = display_time(value);
+                                    break;
                             }
                             let h3Element = document.createElement("h3");
                             h3Element.textContent = key_text + ": ";
