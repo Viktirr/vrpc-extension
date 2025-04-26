@@ -3,6 +3,17 @@ if (typeof browser === 'undefined') {
   var browser = chrome;
 }
 
+const updateUrl = "./new-update-page/update.html"
+
+browser.runtime.onInstalled.addListener(details => {
+  if (details.reason === "install") {
+    browser.tabs.create({ url: updateUrl });
+  }
+  else if (details.reason === "update") {
+    browser.tabs.create( {url: updateUrl });
+  }
+})
+
 let port = browser.runtime.connectNative("vrpc");
 
 let hadLaunched = false;

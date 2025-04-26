@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="update-style.css">
+  <link rel="icon" type="image/x-icon" href="../icons/vlogo.webp">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="VRPC Update Information and Installation Guide.">
+  <meta name="keywords" content="vrpc, update, install, changelog">
+  <meta charset="UTF-8">
+  <title>Viktir | VRPC Update Information</title>
+</head>
+<!-- Some icons are from feathericons.com -->
+
+<body>
+    <!-- Reusing Background Div from example -->
+  <div class="background"
+    style="background-image: url(./background-vrpc-1.webp); background-repeat: no-repeat; background-size: cover;">
+  </div>
+
+  <!-- Panel for the Update Notice -->
+  <div class="panel" style="height: auto; min-height: auto; padding-top: 50px;"> <!-- Added padding-top to clear hero -->
+    <div class="flex flex-vertical center" style="gap:16px;">
+        <div class="panel-container" style="width: 70%; border: 2px solid #f88; background-color: #4119;"> <!-- Highlighted container -->
+            <h2 style="color: #fdd;">VRPC Update/Installation Information!</h2>
+            <p class="strong">VRPC has just been updated (or this might be the first time you've installed it)! The changes between this version and the previous one are drastically different and the program will break if not updated correctly.</p>
+        </div>
+    </div>
+  </div>
+  <br>
+  <br>
+
+  <!-- Panel for Installation/Update Instructions -->
+  <div class="panel" style="height: auto; min-height: auto;">
+    <div class="flex flex-vertical center" style="gap:32px;">
+      <h1>Installation & Update Guide</h1>
+      <div class="panel-container" style="width: 70%; text-align: left;">
+        <p class="strong">Here’s what you should do if updating:</p>
+        <h3 style="margin-top: 16px;">Uninstalling (skip if you're installing the application for the first time)</h3>
+        <ol>
+          <li>Open Settings/Control Panel</li>
+          <li>Head to Apps</li>
+          <li>Uninstall VRPC Application</li>
+          <li>When prompted press Y and press Enter to uninstall</li>
+        </ol>
+
+        <h3 style="margin-top: 16px;">Installing</h3>
+        <ol>
+          <li>Download the <a href="https://github.com/Viktirr/vrpc-app/releases/latest/download/vrpc-full.zip" target="_blank">newest version available here</a></li>
+          <li>Extract the downloaded `vrpc-full.zip` package inside a folder.</li>
+          <li>Open (Run) `VRPC.exe` from the extracted folder.</li>
+          <li>Type Y and press Enter to install</li>
+          <li>Restart the browser</li>
+        </ol>
+        <br>
+        <p class="strong">Please follow these steps exactly as written as doing otherwise will break the application entirely (there are changes in the application that could be fatal if done in another way).</p>
+        <p>If in fact, something breaks, delete the <code>%appdata%\VRPCApp</code> folder. Feel free to keep/copy `ListeningData.json` available inside the Data folder of VRPCApp.</p>
+        <p>For more general information head over to: <a href="https://viktir.com/vrpc" target="_blank">https://viktir.com/vrpc</a></p>
+      </div>
+    </div>
+  </div>
+  <div class="blank-space"></div>
+
+  <!-- Panel for Verification -->
+  <div class="panel" style="height: auto; min-height: auto;">
+    <div class="flex flex-vertical center" style="gap:32px;">
+        <div class="panel-container" style="width: 70%;">
+            <h1>How do I know everything's working?</h1>
+            <p>When selecting the popup tab of the extension, available on most browsers under the puzzle icon on the browser toolbar. The top-most text should say "Connected" or "Rich Presence inactive" depending on where you're looking, sometimes there's a small delay when launching for the first time. If not check out the <a href="https://github.com/Viktirr/vrpc-app#troubleshooting--it-doesnt-work" target="_blank">troubleshooting steps</a></p>
+        </div>
+    </div>
+  </div>
+  <div class="blank-space"></div>
+
+  <!-- Panel for Usage -->
+    <div class="panel" style="height: auto; min-height: auto;">
+        <div class="flex flex-vertical center" style="gap:32px;">
+            <div class="panel-container" style="width: 70%;">
+                <h1>How to use the application?</h1>
+                <p>The application and all its settings can be viewed and modified in the popup tab of the extension, to access it, press the extension icon on your browser toolbar (usually a puzzle icon) and press the VRPC Extension.</p>
+                <p>Clicking on Stats, Configuration and About will bring different menus. You may also see your Rich Presence status at the top of the extension popup.</p>
+            </div>
+        </div>
+    </div>
+    <div class="blank-space"></div>
+
+  <!-- Panel for Changelog -->
+  <div class="panel" style="height: auto; min-height: auto;">
+      <div class="flex flex-vertical center" style="gap:32px;">
+          <div class="panel-container" style="width: 70%; text-align: left;">
+              <h1>Here's what's changed between v0.81 and v1.00:</h1>
+              
+              <h2 style="margin-top: 24px;">Extension Changes</h2>
+              <ul>
+                  <li>Configuration categories - No longer an eyesore to look for a specific settings</li>
+                  <li>Soundcloud works when signed out - You no longer have to log in to have Soundcloud as your Rich Presence</li>
+                  <li>Add song duration to Stats - You can now view the song duration in stats (this could be useful for later)</li>
+                  <li>Hide Stats when no data is present - Stats can be disorienting when there's no data being present</li>
+                  <li>Fix "and undefined" - "and undefined" used to say when there was no data on some Stats, especially when creating data for a song that was not registered before. This has now been replaced with showing "0 seconds" instead.</li>
+                  <li>App Locked Warning - If there are multiple browsers running and this one isn't used for VRPC, there will be a warning saying that the application will not run because it is locked by another browser.</li>
+                  <li>YouTube Music rework - Reworked how some data was gathered on YouTube Music, things should be a little bit more stable now.</li>
+                  <li>New font: Roboto</li>
+                  <li>Fix links in Soundcloud</li>
+              </ul>
+
+              <h2 style="margin-top: 24px;">Application Changes</h2>
+              <ul>
+                  <li>Configuration categories</li>
+                  <li>Installation files are now in bin - Less cluttered when browsing the installation folder of VRPC</li>
+                  <li>Lock file - Due to conflicts with having multiple browsers open with VRPC, especially with Rich Presence, I now only allow one instance of the application running, this resolves many issues that come with having multiple instances of the application open (such as conflicts when saving with Listening Data or Rich Presence overlap)</li>
+                  <li>Song Duration in Listening Data</li>
+                  <li>Listening Data Backup - If the newest version of Listening Data failed to save, the application will use a backup instead to ensure no major data is lost</li>
+                  <li>YouTube Music Rework - Some functionality of YouTube Music has been reworked to fix some issues, such as pausing not working right or the timestamps being off. With this also came the removal of the forced 2 second delay when switching songs as now it works without it</li>
+                  <li>Listening Data Heartbeat fix - Sometimes Listening Data will wrongly assume that the song is not currently being played. This has been fixed.</li>
+                  <li>Creation Date on Listening Data - The date and time of the Listening Data file being created</li>
+                  <li>Remove infinite Rich Presence - If Rich Presence lasts longer for the length of a song, it will be automatically removed</li>
+                  <li>Clamp to 128 bytes instead of arbitrary 56 characters - Allows for longer lengths of song names being used, this is to combat the previous 56 character limit I arbitrarily put. Allows you to have super lengthy song names correctly displayed now.</li>
+              </ul>
+          </div>
+      </div>
+  </div>
+  <div class="blank-space"></div>
+
+  <!-- Panel for Thank You -->
+  <div class="panel" style="height: auto; min-height: auto;">
+    <div class="flex flex-vertical center">
+        <h1>Thank you for using VRPC!</h1>
+    </div>
+  </div>
+  <br>
+</body>
+
+</html>
