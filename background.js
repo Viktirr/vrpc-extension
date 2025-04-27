@@ -3,10 +3,22 @@ if (typeof browser === 'undefined') {
   var browser = chrome;
 }
 
+const updateUrl = "./new-update-page/update.html"
+
+browser.runtime.onInstalled.addListener(details => {
+  if (details.reason === "install") {
+    browser.tabs.create({ url: updateUrl });
+  }
+  else if (details.reason === "update") {
+    browser.tabs.create( {url: updateUrl });
+  }
+})
+
 let port = browser.runtime.connectNative("vrpc");
 
 let hadLaunched = false;
 let AppActive = false;
+let appLocked = false;
 
 port.onMessage.addListener((response) => {
   console.log("Received: " + response);
@@ -19,6 +31,15 @@ port.onMessage.addListener((response) => {
     });
     return;
   }
+  if (response === "PROGRAM: LOCK")
+  {
+    appLocked = true;
+    browser.runtime.sendMessage({
+      type: "SEND_POPUP_INFO",
+      content: "STATUS: LOCKED"
+    });
+    return;
+  }
   browser.runtime.sendMessage({
     type: "SEND_POPUP_INFO",
     content: response
@@ -27,8 +48,15 @@ port.onMessage.addListener((response) => {
 
 // Check if the app is running
 function CheckAppHeartbeat() {
+  if (appLocked) {
+    browser.runtime.sendMessage({
+      type: "SEND_POPUP_INFO",
+      content: "STATUS: LOCKED"
+    });
+    return;
+  }
   const timeoutAppResponse = setTimeout(() => {
-    if (AppActive == true) {
+    if (AppActive == true || appLocked == true) {
       clearTimeout(timeoutAppResponse);
       return;
     }
@@ -45,6 +73,9 @@ function CheckAppHeartbeat() {
 }
 
 function CheckLaunched() {
+  if (appLocked == true) {
+    return;
+  }
   if (hadLaunched == false) {
     browser.runtime.sendMessage({
       type: "SEND_POPUP_INFO",

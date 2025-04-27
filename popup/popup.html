@@ -8,8 +8,8 @@
     <title>VRPC Extension Popup</title>
     <link rel="stylesheet" href="./styles.css">
     <link rel="icon" href="../icons/favicon-temp.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <script src="script.js"></script>
-
 </head>
 
 <body>
@@ -67,9 +67,14 @@
                 </div>
                 <div id="warning-not-launched" style="display:none;">
                     <h3>It seems that the app had not loaded in correctly.</h3>
-                    <h3>Please review your installation if installed manually.
+                    <h3>Please make sure that this is the only browser open and try again.</h3>
+                    <h3>Please review your installation if installed manually.</h3>
                     <h3>Likewise, launch the application to start/restart the installation process if installed directly from the application.</h3>
                     <h3>Didn't work? Please follow all the troubleshooting steps at <a href="https://github.com/Viktirr/vrpc-app#troubleshooting--it-doesnt-work">https://github.com/Viktirr/vrpc-app</a></h3>
+                </div>
+                <div id="warning-app-locked" style="display: none;">
+                    <h3>It seems that the application is already running in another browser.</h3>
+                    <h3>To use the application in this browser, please close other browsers and restart this one.</h3>
                 </div>
             </div>
         </div>
@@ -112,11 +117,11 @@
                 <h3 id="about-container-app-warning" style="color: #c22; display: none;">App and extension version mismatch. Please update both to the latest version.</h3>
                 <h2>General</h2>
                 <h3>VPRC at its core was designed to be a set of software that allows communication between the browser and Discord, plus some other nice-to-have features.</h3>
-                <h3>The application can also store data of what you've listened to, for how long, which platform you've listened on, etc. You're free to opt-out of this feature by disabling "Enable Listening Data" on Configuration if available. We currently don't upload anywhere and is ONLY stored locally, however uploading is a planned feature.</h3>
-                <h2>Miscellaneous & Disclaimers</h2>
+                <h2>Listening Data</h2>
+                <h3>The application can also store data of what you've listened to, for how long, which platform you've listened on, etc. You're free to opt-out of this feature by disabling "Enable Listening Data" on Configuration if available. This data is not uploaded anywhere and is ONLY stored locally.</h3>
                 <h3>You may access your listening activity if you have Listening Data enabled in:</h3>
-                <h3>%appdata%\VRPCApp\Data\ListeningData.json</h3>
-                <hr>
+                <code>%appdata%\VRPCApp\Data\ListeningData.json</code>
+                <h2>Miscellaneous & Disclaimers</h2>
                 <h3>Some settings don't always apply immediately. At most you'll have to reload the website that is currently recognised by the extension.</h3>
                 <hr>
                 <h3>Some icons are used from feathericons.com</h3>
@@ -126,7 +131,6 @@
                 <h2>Troubleshooting</h2>
                 <h3>If the extension can't connect to the app, it's either because the app is not recognised, not installed or not running. All of these should work automatically, however, if it doesn't work, please visit the Troubleshooting section over at</h3>
                 <h3><a href="https://github.com/Viktirr/vrpc-app">https://github.com/Viktirr/vrpc-app</a></h3>
-                <h3>Currently, installation is manual, and installation instructions are at the Installation portion of the GitHub above.</h3>
                 <h3>If the app is behaving slowly, please try disabling "Enable Listening Data"</h3>
             </div>
         </div>

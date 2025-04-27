@@ -337,21 +337,38 @@ function display_day(value) {
 }
 
 function display_time(value) {
-    if (value === 0) return '0 seconds';
+    if (value === 0 || value == null) {
+        return '0 seconds';
+    }
+
+    const numericValue = Number(value);
+
+    if (!Number.isFinite(numericValue) || numericValue < 0) {
+        return '0 seconds';
+    }
 
     const units = [
-        { value2: Math.floor(value / 86400), label: 'day' },
-        { value2: Math.floor((value % 86400) / 3600), label: 'hour' },
-        { value2: Math.floor((value % 3600) / 60), label: 'minute' },
-        { value2: value % 60, label: 'second' }
+        { value2: Math.floor(numericValue / 86400), label: 'day' },
+        { value2: Math.floor((numericValue % 86400) / 3600), label: 'hour' },
+        { value2: Math.floor((numericValue % 3600) / 60), label: 'minute' },
+        { value2: numericValue % 60, label: 'second' }
     ];
 
     const parts = units.map(unit => {
-        if (unit.value2 === 0) return null;
-        return `${unit.value2} ${unit.label}${unit.value2 !== 1 ? 's' : ''}`;
+        if (unit.value2 === 0 || !Number.isFinite(unit.value2)) {
+            return null;
+        }
+
+        return `${unit.value2} ${unit.label}${Math.floor(unit.value2) !== 1 ? 's' : ''}`;
     }).filter(part => part !== null);
 
-    if (parts.length === 1) return parts[0];
+    if (parts.length === 0) {
+        return '0 seconds';
+    }
+
+    if (parts.length === 1) {
+        return parts[0];
+    }
 
     const last = parts.pop();
     return `${parts.join(', ')} and ${last}`;
@@ -404,7 +421,6 @@ try {
             if (message.content === "STATUS: ALIVE") {
                 document.getElementById("app-status").classList.add("success");
                 document.getElementById("app-status-text").textContent = "Connected";
-                document.getElementById("stats-container").style.display = "flex";
                 if (hasLaunched == false) {
                     GetRichPresence();
                     GetFullConfig();
@@ -433,6 +449,13 @@ try {
                 let warningCrashedContainer = document.getElementById("warning-crashed");
 
                 warningCrashedContainer.style.display = "block";
+                warningContainer.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
+            }
+            else if (message.content === "STATUS: LOCKED") {
+                let warningContainer = document.getElementById("warning-container");
+                let warningLockedContainer = document.getElementById("warning-app-locked");
+
+                warningLockedContainer.style.display = "block";
                 warningContainer.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
             }
             else if (message.content.includes("RPC: ")) {
@@ -619,8 +642,14 @@ try {
                 let configId = configInfo["InternalName"];
 
                 let configItem = document.querySelector(`[configId="${configId}"]`);
+
                 let configItemName = configItem.querySelector("h3");
                 configItemName.textContent = configInfo["DisplayName"];
+
+                if (configInfo["Type"] == "category") {
+                    configItem.querySelector("h3").style.fontSize = "16px";
+                    configItem.querySelector("div").remove();
+                }
 
                 if (configInfo["Visibility"] == "Hidden") {
                     configItem.style.display = "none";
@@ -669,85 +698,86 @@ try {
                     }
                 }
 
-                try { ldstats = JSON.parse(message.content); } catch {
-                    let h3Element = document.createElement("h3");
-                    h3Element.textContent = "No data present. Play a song for 60 seconds and enable listening data in configuration if it is disabled.";
-                    h3Element.style.color = "#999";
-                    h3Element.style.marginTop = "4px";
-                    h3Element.style.marginBottom = "4px";
-                    statsDataDiv.appendChild(h3Element);
-                }
-
-                if (ldstats) {
-                    for ([key, value] of Object.entries(ldstats)) {
-                        let key_text;
-                        let value_text;
-                        switch (key) {
-                            case "name":
-                                key_text = "Name";
-                                value_text = value;
-                                break;
-                            case "author":
-                                key_text = "Author";
-                                value_text = value;
-                                break;
-                            case "key":
-                                key_text = "Key";
-                                value_text = value;
-                                break;
-                            case "timelistened":
-                                key_text = "Time Listened";
-                                value_text = display_time(value);
-                                break;
-                            case "firstlistened":
-                                key_text = "First Listened";
-                                value_text = display_datetime(value);
-                                break;
-                            case "lastplayed":
-                                key_text = "Last Played";
-                                value_text = display_datetime(value);
-                                break;
-                            case "daylastplayedtimelistened":
-                                key_text = "Time Listened Today";
-                                value_text = display_time(value);
-                                break;
-                            case "daymostplayed":
-                                key_text = "Day Most Played";
-                                value_text = display_day(value);
-                                break;
-                            case "daymostplayedtimelistened":
-                                key_text = "Time Listened on Day Most Played";
-                                value_text = display_time(value);
-                                break;
-                            case "isvideo":
-                                key_text = "Video"
-                                value_text = value;
-                                break;
-                            case "songurl":
-                                key_text = "Song URL";
-                                value_text = value;
-                                break;
-                            case "lastplatformlistenedon":
-                                key_text = "Platform";
-                                value_text = value;
-                                break;
+                let hasData = false;
+                try {
+                    ldstats = JSON.parse(message.content);
+                    if (ldstats && Object.keys(ldstats).length > 0) {
+                        hasData = true;
+                        for ([key, value] of Object.entries(ldstats)) {
+                            let key_text;
+                            let value_text;
+                            switch (key) {
+                                case "name":
+                                    key_text = "Name";
+                                    value_text = value;
+                                    break;
+                                case "author":
+                                    key_text = "Author";
+                                    value_text = value;
+                                    break;
+                                case "key":
+                                    key_text = "Key";
+                                    value_text = value;
+                                    break;
+                                case "timelistened":
+                                    key_text = "Time Listened";
+                                    value_text = display_time(value);
+                                    break;
+                                case "firstlistened":
+                                    key_text = "First Listened";
+                                    value_text = display_datetime(value);
+                                    break;
+                                case "lastplayed":
+                                    key_text = "Last Played";
+                                    value_text = display_datetime(value);
+                                    break;
+                                case "daylastplayedtimelistened":
+                                    key_text = "Time Listened Today";
+                                    value_text = display_time(value);
+                                    break;
+                                case "daymostplayed":
+                                    key_text = "Day Most Played";
+                                    value_text = display_day(value);
+                                    break;
+                                case "daymostplayedtimelistened":
+                                    key_text = "Time Listened on Day Most Played";
+                                    value_text = display_time(value);
+                                    break;
+                                case "isvideo":
+                                    key_text = "Video";
+                                    value_text = value;
+                                    break;
+                                case "songurl":
+                                    key_text = "Song URL";
+                                    value_text = value;
+                                    break;
+                                case "lastplatformlistenedon":
+                                    key_text = "Platform";
+                                    value_text = value;
+                                    break;
+                                case "songduration":
+                                    key_text = "Song Duration";
+                                    value_text = display_time(value);
+                                    break;
+                            }
+                            let h3Element = document.createElement("h3");
+                            h3Element.textContent = key_text + ": ";
+                            h3Element.style.color = "#999";
+                            h3Element.style.marginTop = "4px";
+                            h3Element.style.marginBottom = "4px";
+                            statsDataDiv.appendChild(h3Element);
+                            let spanElement = document.createElement("span");
+                            spanElement.textContent = value_text;
+                            spanElement.style.color = "#dedede";
+                            h3Element.appendChild(spanElement);
                         }
-
-                        let h3Element = document.createElement("h3");
-                        h3Element.textContent = key_text + ": ";
-                        h3Element.style.color = "#999";
-                        h3Element.style.marginTop = "4px";
-                        h3Element.style.marginBottom = "4px";
-                        statsDataDiv.appendChild(h3Element);
-
-                        let spanElement = document.createElement("span");
-                        spanElement.textContent = value_text;
-                        spanElement.style.color = "#dedede";
-                        h3Element.appendChild(spanElement)
                     }
+                } catch (e) {
+                    hasData = false;
                 }
+                document.getElementById("stats-container").style.display = hasData ? "flex" : "none";
 
-                if (!document.getElementById("stats-container").classList.contains("closed")) {
+                if (hasData && !document.getElementById("stats-container").classList.contains("closed")) {
                     let height = document.getElementById("stats-container-data").offsetHeight;
                     document.getElementById("stats-container").style.height = height + "px";
                 }
