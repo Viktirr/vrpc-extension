@@ -27,13 +27,13 @@ header {
     align-items: center;
     background-image: url("assets/connection_unknown.webp");
     background-position: 50% 50%;
-    border-bottom: 1px solid var(--gray);
+    border-radius: 0.5em;
     display: flex;
     justify-content: center;
-    height: 60px;
-    margin: auto;
+    height: 32px;
+    margin: 8px auto;
     padding: 0;
-    width: 100%;
+    width: calc(100% - 16px);
 }
 
 header.success {
@@ -186,6 +186,7 @@ p.status {
 h1 {
     color: var(--white);
     font-family: "Roboto", Arial, sans-serif;
+    font-size: 14px;
     font-weight: 600;
     margin: 0;
     padding: 0;
@@ -319,7 +320,7 @@ code {
 
 #main-container {
     border-radius: 1em;
-    height: calc(var(--height) - 60px);
+    height: calc(var(--height) - 48px);
     overflow: scroll;
     scrollbar-width: none;
 }
