@@ -139,9 +139,18 @@ if (document.readyState === "complete") {
   });
 }
 
-window.addEventListener("beforeunload", () => {
-  browser.runtime.sendMessage({
-    type: "SET_STATUS_INFO",
-    content: "YouTube Music\nClosed"
-  });
+window.addEventListener("pagehide", () => {
+    browser.runtime.sendMessage({
+        type: "SET_STATUS_INFO",
+        content: "YouTube Music\nClosed"
+    });
+});
+
+window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+        browser.runtime.sendMessage({
+            type: "SET_STATUS_INFO",
+            content: "YouTube Music\nOpened"
+        });
+    }
 });

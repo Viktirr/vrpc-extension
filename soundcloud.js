@@ -105,9 +105,18 @@ if (document.readyState === "complete") {
     })
 }
 
-window.addEventListener("beforeunload", () => {
+window.addEventListener("pagehide", () => {
     browser.runtime.sendMessage({
         type: "SET_STATUS_INFO",
         content: "Soundcloud\nClosed"
     });
+});
+
+window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+        browser.runtime.sendMessage({
+            type: "SET_STATUS_INFO",
+            content: "Soundcloud\nOpened"
+        });
+    }
 });
