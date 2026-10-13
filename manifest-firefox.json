@@ -36,5 +36,5 @@
     "scripts": ["background.js"]
   },
   
-  "permissions": ["nativeMessaging", "activeTab"]
+  "permissions": ["nativeMessaging"]
 }
