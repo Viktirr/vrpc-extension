@@ -8,7 +8,7 @@ import os
 import shutil
 
 platform = "any"
-if (1 in sys.argv):
+if (len(sys.argv) > 1):
     if (sys.argv[1] == "firefox"):
         platform = "firefox"
     elif (sys.argv[1] == "chrome"):
@@ -60,7 +60,9 @@ def copy_to_parent_folder(root_folder=None, platform=None):
         src_path = os.path.join(root_folder, rel_item)
 
         if ("manifest-firefox.json" in rel_item or "manifest-chrome.json" in rel_item):
-            rel_item = ".\\manifest.json"
+            # os.path.join, so the manifest lands in the right place on every platform: a literal
+            # ".\manifest.json" becomes a file with a backslash in its name outside Windows.
+            rel_item = "manifest.json"
 
         dest_path = os.path.join(parent_folder, rel_item)
         
