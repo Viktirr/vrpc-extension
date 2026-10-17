@@ -42,6 +42,22 @@ function ShowWarning(id) {
     container.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
 }
 
+// Hides one section and collapses the panel when nothing else is showing. Only a version check
+// may hide the outdated warning: a heartbeat says the app is alive, not that it is current.
+function HideWarning(id) {
+    const container = document.getElementById("warning-container");
+    const warning = document.getElementById(id);
+    if (!container || !warning) { return; }
+    warning.style.display = "none";
+
+    const sections = ["warning-crashed", "warning-not-launched", "warning-app-locked", "warning-app-outdated"];
+    const anyVisible = sections.some((section) => {
+        const element = document.getElementById(section);
+        return element && element.style.display === "block";
+    });
+    container.style.height = anyVisible ? document.getElementById("warning-container-data").offsetHeight + "px" : "0px";
+}
+
 function OpenContainer(_container) {
     let _dataContainer = _container + "-data";
     let container = document.getElementById(_container);
@@ -451,8 +467,6 @@ try {
             if (message.content === "STATUS: ALIVE") {
                 document.getElementById("app-status").classList.add("success");
                 document.getElementById("app-status-text").textContent = "Connected";
-                const outdatedWarning = document.getElementById("warning-app-outdated");
-                if (outdatedWarning) { outdatedWarning.style.display = "none"; }
                 if (hasLaunched == false) {
                     GetRichPresence();
                     GetFullConfig();
@@ -722,6 +736,7 @@ try {
                     : "";
                 warning.style.display = outdated ? "block" : "none";
                 if (outdated) { ShowWarning("warning-app-outdated"); }
+                else { HideWarning("warning-app-outdated"); }
             }
             else if (message.content.includes("LDSTATS: ")) {
                 message.content = message.content.replace("LDSTATS: ", "");

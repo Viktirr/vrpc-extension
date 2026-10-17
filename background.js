@@ -133,6 +133,8 @@ function HandleAppDisconnect() {
   AppActive = false;
   appVersion = null;
   appProtocol = 1;
+  // Start over so a reconnect re-evaluates and re-announces an outdated app.
+  appOutdated = false;
   SetBadge("");
 }
 
