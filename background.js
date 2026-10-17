@@ -5,6 +5,10 @@ if (typeof browser === 'undefined') {
 
 const updateUrl = "./new-update-page/update.html"
 const nativeHostName = "vrpc";
+// Wire-protocol version; older apps ignore the unknown PROTO frame.
+const CLIENT_PROTO = 2;
+const MIN_APP_VERSION = "1.10.0";
+const MIN_PROTO = 2;
 
 // Don't hammer the host with launches if it keeps failing to start.
 const reconnectIntervalMs = 10000;
@@ -26,6 +30,54 @@ let lastLockedCheck = 0;
 let hadLaunched = false;
 let AppActive = false;
 let appLocked = false;
+let appVersion = null;
+let appProtocol = 1;
+let appOutdated = false;
+
+// Chrome MV3 uses action; Firefox MV2 uses browserAction.
+function GetActionApi() {
+  return browser.action || browser.browserAction || null;
+}
+
+function SetBadge(text, color) {
+  const action = GetActionApi();
+  if (!action || !action.setBadgeText) { return; }
+  try {
+    action.setBadgeText({ text: text || "" });
+    if (color && action.setBadgeBackgroundColor) {
+      action.setBadgeBackgroundColor({ color: color });
+    }
+  } catch (e) {
+    console.log("Couldn't set the extension badge: " + e);
+  }
+}
+
+function ParseVersion(value) {
+  if (!value) { return null; }
+  const match = String(value).match(/(\d+)\.(\d+)(?:\.(\d+))?/);
+  if (!match) { return null; }
+  return [parseInt(match[1], 10), parseInt(match[2], 10), parseInt(match[3] || "0", 10)];
+}
+
+function IsOlderVersion(value, minimum) {
+  const left = ParseVersion(value);
+  const right = ParseVersion(minimum);
+  if (!left || !right) { return true; }
+  for (let i = 0; i < 3; i++) {
+    if (left[i] < right[i]) { return true; }
+    if (left[i] > right[i]) { return false; }
+  }
+  return false;
+}
+
+// Lower app/protocol keeps working but gets a badge and popup warning.
+function UpdateCompatibility() {
+  const outdated = IsOlderVersion(appVersion, MIN_APP_VERSION) || appProtocol < MIN_PROTO;
+  if (outdated === appOutdated) { return; }
+  appOutdated = outdated;
+  SetBadge(outdated ? "!" : "", outdated ? "#c62828" : "#2e7d32");
+  if (outdated) { NotifyPopup("STATUS: APP_OUTDATED"); }
+}
 
 function NotifyPopup(content) {
   try {
@@ -60,6 +112,15 @@ function ConnectToApp() {
 
   port.onMessage.addListener(HandleAppMessage);
   port.onDisconnect.addListener(HandleAppDisconnect);
+
+  // Announce before asking for the version.
+  try {
+    port.postMessage("PROTO: \n" + CLIENT_PROTO);
+    port.postMessage("Status: \nGET_APP_VERSION");
+  } catch (e) {
+    console.log("Couldn't announce the protocol: " + e);
+  }
+
   return port;
 }
 
@@ -70,6 +131,9 @@ function HandleAppDisconnect() {
   console.log("Disconnected from the app" + (error ? ": " + error.message : ""));
   port = null;
   AppActive = false;
+  appVersion = null;
+  appProtocol = 1;
+  SetBadge("");
 }
 
 function SendToApp(message) {
@@ -90,6 +154,16 @@ function SendToApp(message) {
 
 function HandleAppMessage(response) {
   console.log("Received: " + response);
+
+  // Missing PROTO means an older app and defaults to 1.
+  if (response.startsWith("APPVERSION: ")) {
+    const raw = response.substring("APPVERSION: ".length);
+    appVersion = raw.split(";")[0].trim();
+    const protocolMatch = raw.match(/PROTO=(\d+)/i);
+    appProtocol = protocolMatch ? parseInt(protocolMatch[1], 10) : 1;
+    UpdateCompatibility();
+  }
+
   if (response === "Alive") {
     AppActive = true;
     hadLaunched = true;
@@ -130,6 +204,8 @@ function CheckAppHeartbeat() {
   console.log("Checking App Status");
 
   SendToApp("Status: \nProgram\nHeartbeat");
+  // Refresh compatibility on every heartbeat.
+  SendToApp("Status: \nGET_APP_VERSION");
 }
 
 function CheckLaunched() {

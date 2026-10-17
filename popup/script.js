@@ -11,6 +11,36 @@ let hasLaunched = false;
 
 const manifest = browser.runtime.getManifest()
 const versionNumber = manifest.version;
+// Compatibility thresholds mirrored from background.js.
+const MIN_APP_VERSION = "1.10.0";
+const MIN_PROTO = 2;
+
+function ParseVersion(value) {
+    if (!value) { return null; }
+    const match = String(value).match(/(\d+)\.(\d+)(?:\.(\d+))?/);
+    if (!match) { return null; }
+    return [parseInt(match[1], 10), parseInt(match[2], 10), parseInt(match[3] || "0", 10)];
+}
+
+function IsOlderVersion(value, minimum) {
+    const left = ParseVersion(value);
+    const right = ParseVersion(minimum);
+    if (!left || !right) { return true; }
+    for (let i = 0; i < 3; i++) {
+        if (left[i] < right[i]) { return true; }
+        if (left[i] > right[i]) { return false; }
+    }
+    return false;
+}
+
+// Recomputes the warning panel height after revealing one of its sections.
+function ShowWarning(id) {
+    const container = document.getElementById("warning-container");
+    const warning = document.getElementById(id);
+    if (!container || !warning) { return; }
+    warning.style.display = "block";
+    container.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
+}
 
 function OpenContainer(_container) {
     let _dataContainer = _container + "-data";
@@ -421,6 +451,8 @@ try {
             if (message.content === "STATUS: ALIVE") {
                 document.getElementById("app-status").classList.add("success");
                 document.getElementById("app-status-text").textContent = "Connected";
+                const outdatedWarning = document.getElementById("warning-app-outdated");
+                if (outdatedWarning) { outdatedWarning.style.display = "none"; }
                 if (hasLaunched == false) {
                     GetRichPresence();
                     GetFullConfig();
@@ -452,11 +484,10 @@ try {
                 warningContainer.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
             }
             else if (message.content === "STATUS: LOCKED") {
-                let warningContainer = document.getElementById("warning-container");
-                let warningLockedContainer = document.getElementById("warning-app-locked");
-
-                warningLockedContainer.style.display = "block";
-                warningContainer.style.height = document.getElementById("warning-container-data").offsetHeight + "px";
+                ShowWarning("warning-app-locked");
+            }
+            else if (message.content === "STATUS: APP_OUTDATED") {
+                ShowWarning("warning-app-outdated");
             }
             else if (message.content.includes("RPC: ")) {
                 // Message content should involve: [0] = Song Name, [1] = Artist Name, [2] = Album Name, [3] = Image Link, [4] = Discord RPC Status, [5] = Timestamp Start, [6] = Timestamp End, [7] = Is program receiving RPC?, [8] = Service Name
@@ -674,16 +705,23 @@ try {
                 }
             }
             else if (message.content.includes("APPVERSION: ")) {
-                message.content = message.content.replace("APPVERSION: ", "");
+                // "APPVERSION: 1.11.0" or "APPVERSION: 1.11.0;PROTO=2".
+                const rawVersion = message.content.replace("APPVERSION: ", "").trim();
+                const protocolMatch = rawVersion.match(/PROTO=(\d+)/i);
+                const appProtocol = protocolMatch ? parseInt(protocolMatch[1], 10) : 1;
+                const appVersion = rawVersion.split(";")[0].trim();
 
                 var aboutContainer = document.getElementById("about-container");
                 let versionText = aboutContainer.querySelector("#about-container-data p.plus-main-text");
+                versionText.textContent = `Version: ${versionNumber} | App Version: ${appVersion}`;
 
-                versionText.textContent = `Version: ${versionNumber} | App Version: ${message.content}`;
-
-                let shortVersionNumber = versionNumber.slice(0, 4);
-                let shortAppVersionNumber = message.content.slice(0, 4);
-                if (shortVersionNumber != shortAppVersionNumber) { document.getElementById("about-container-app-warning").style.display = "block" }
+                const outdated = IsOlderVersion(appVersion, MIN_APP_VERSION) || appProtocol < MIN_PROTO;
+                const warning = document.getElementById("about-container-app-warning");
+                warning.textContent = outdated
+                    ? "Your desktop app is out of date. Update VRPC to get the latest fixes and features."
+                    : "";
+                warning.style.display = outdated ? "block" : "none";
+                if (outdated) { ShowWarning("warning-app-outdated"); }
             }
             else if (message.content.includes("LDSTATS: ")) {
                 message.content = message.content.replace("LDSTATS: ", "");

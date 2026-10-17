@@ -23,7 +23,7 @@
     <div class="flex flex-vertical center" style="gap:16px;">
         <div class="panel-container" style="width: 70%; border: 2px solid #f88; background-color: #4119;"> <!-- Highlighted container -->
             <h2 style="color: #fdd;">VRPC Update/Installation Information!</h2>
-            <p class="strong">VRPC has just been updated (or this might be the first time you've installed it)! The changes between this version and the previous one are drastically different and the program will break if not updated correctly.</p>
+            <p class="strong">VRPC has just been updated (or this might be the first time you've installed it)! Keep the desktop app on the latest release so the extension and app stay compatible.</p>
         </div>
     </div>
   </div>
@@ -36,25 +36,26 @@
       <h1>Installation & Update Guide</h1>
       <div class="panel-container" style="width: 70%; text-align: left;">
         <p class="strong">Here’s what you should do if updating:</p>
-        <h3 style="margin-top: 16px;">Uninstalling (skip if you're installing the application for the first time)</h3>
+        <h3 style="margin-top: 16px;">Updating (skip if you're installing the application for the first time)</h3>
         <ol>
-          <li>Open Settings/Control Panel</li>
-          <li>Head to Apps</li>
-          <li>Uninstall VRPC Application</li>
-          <li>When prompted press Y and press Enter to uninstall</li>
+          <li>Download the <a href="https://github.com/Viktirr/vrpc-app/releases/latest" target="_blank">newest version available here</a></li>
+          <li>Extract the downloaded package inside a folder.</li>
+          <li>Open (Run) `VRPC.exe` from the extracted folder.</li>
+          <li>Choose the update option and let it finish.</li>
+          <li>Restart the browser if the extension still shows the old version.</li>
         </ol>
 
         <h3 style="margin-top: 16px;">Installing</h3>
         <ol>
-          <li>Download the <a href="https://github.com/Viktirr/vrpc-app/releases/latest/download/vrpc-full.zip" target="_blank">newest version available here</a></li>
-          <li>Extract the downloaded `vrpc-full.zip` package inside a folder.</li>
+          <li>Download the <a href="https://github.com/Viktirr/vrpc-app/releases/latest" target="_blank">newest version available here</a></li>
+          <li>Extract the downloaded package inside a folder.</li>
           <li>Open (Run) `VRPC.exe` from the extracted folder.</li>
           <li>Type Y and press Enter to install</li>
           <li>Restart the browser</li>
         </ol>
         <br>
-        <p class="strong">Please follow these steps exactly as written as doing otherwise will break the application entirely (there are changes in the application that could be fatal if done in another way).</p>
-        <p>If in fact, something breaks, delete the <code>%appdata%\VRPCApp</code> folder. Feel free to keep/copy `ListeningData.json` available inside the Data folder of VRPCApp.</p>
+        <p class="strong">Do not uninstall the old version first. The new installer updates it in place and keeps your settings and listening history.</p>
+        <p>If something breaks, check the logs in <code>%localappdata%\Viktir\VRPCApp\state\logs</code>. Your listening history is in <code>%localappdata%\Viktir\VRPCApp\data\ListeningData.json</code>. Reinstalling the latest package repairs the application without deleting that data.</p>
         <p>For more general information head over to: <a href="https://viktir.com/vrpc" target="_blank">https://viktir.com/vrpc</a></p>
       </div>
     </div>
