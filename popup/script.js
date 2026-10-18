@@ -12,7 +12,7 @@ let hasLaunched = false;
 const manifest = browser.runtime.getManifest()
 const versionNumber = manifest.version;
 // Compatibility thresholds mirrored from background.js.
-const MIN_APP_VERSION = "1.10.0";
+const MIN_APP_VERSION = "1.10";
 const MIN_PROTO = 2;
 
 function ParseVersion(value) {
@@ -467,6 +467,10 @@ try {
             if (message.content === "STATUS: ALIVE") {
                 document.getElementById("app-status").classList.add("success");
                 document.getElementById("app-status-text").textContent = "Connected";
+                // The extension relaunches a crashed app, so clear warnings that no longer apply.
+                HideWarning("warning-crashed");
+                HideWarning("warning-not-launched");
+                HideWarning("warning-app-locked");
                 if (hasLaunched == false) {
                     GetRichPresence();
                     GetFullConfig();
