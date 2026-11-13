@@ -681,9 +681,18 @@ try {
 
                 versionText.textContent = `Version: ${versionNumber} | App Version: ${message.content}`;
 
-                let shortVersionNumber = versionNumber.slice(0, 4);
-                let shortAppVersionNumber = message.content.slice(0, 4);
-                if (shortVersionNumber != shortAppVersionNumber) { document.getElementById("about-container-app-warning").style.display = "block" }
+                // The app packs minor and patch into two digits ("1.01" is 1.0.1); the stores want
+                // the same version written out as components, so line both forms up before comparing.
+                const versionParts = value => {
+                    const parts = String(value).split(".").map(part => parseInt(part, 10) || 0);
+                    return parts.length === 2 && String(value).split(".")[1].length === 2
+                        ? [parts[0], Math.floor(parts[1] / 10), parts[1] % 10]
+                        : [parts[0], parts[1] || 0, parts[2] || 0];
+                };
+
+                const extensionVersion = versionParts(versionNumber);
+                const appVersion = versionParts(message.content);
+                if (extensionVersion.some((part, index) => part !== appVersion[index])) { document.getElementById("about-container-app-warning").style.display = "block" }
             }
             else if (message.content.includes("LDSTATS: ")) {
                 message.content = message.content.replace("LDSTATS: ", "");
