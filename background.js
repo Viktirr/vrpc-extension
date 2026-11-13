@@ -36,6 +36,15 @@ browser.runtime.onInstalled.addListener(details => {
   }
 })
 
+// Older builds marked an outdated app with a red "!" badge and the browser restores that badge
+// text when the background page restarts, so clear it once for installs that still carry it.
+try {
+  const action = browser.action || browser.browserAction;
+  if (action && action.setBadgeText) { action.setBadgeText({ text: "" }); }
+} catch (e) {
+  console.log("Couldn't clear the extension badge: " + e);
+}
+
 let port = null;
 let lastConnectAttempt = 0;
 let connectBlockedUntil = 0;
@@ -53,24 +62,6 @@ let recoveryPending = false;
 let activeService = null;
 let announcedService = null;
 let lastRpcByService = Object.create(null);
-
-// Chrome MV3 uses action; Firefox MV2 uses browserAction.
-function GetActionApi() {
-  return browser.action || browser.browserAction || null;
-}
-
-function SetBadge(text, color) {
-  const action = GetActionApi();
-  if (!action || !action.setBadgeText) { return; }
-  try {
-    action.setBadgeText({ text: text || "" });
-    if (color && action.setBadgeBackgroundColor) {
-      action.setBadgeBackgroundColor({ color: color });
-    }
-  } catch (e) {
-    console.log("Couldn't set the extension badge: " + e);
-  }
-}
 
 function ParseVersion(value) {
   if (!value) { return null; }
@@ -90,12 +81,11 @@ function IsOlderVersion(value, minimum) {
   return false;
 }
 
-// Lower app/protocol keeps working but gets a badge and popup warning.
+// Lower app/protocol keeps working but gets a popup warning.
 function UpdateCompatibility() {
   const outdated = IsOlderVersion(appVersion, MIN_APP_VERSION) || appProtocol < MIN_PROTO;
   if (outdated === appOutdated) { return; }
   appOutdated = outdated;
-  SetBadge(outdated ? "!" : "", outdated ? "#c62828" : "#2e7d32");
   if (outdated) { NotifyPopup("STATUS: APP_OUTDATED"); }
 }
 
@@ -135,7 +125,6 @@ function ResetAppState() {
   announcedService = null;
   ClearHeartbeatTimer();
   ClearWatchdogTimer();
-  SetBadge("");
 }
 
 // Probes a connected app every 20 seconds so a process that hangs without closing its pipe is
