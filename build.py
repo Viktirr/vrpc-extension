@@ -54,7 +54,11 @@ def copy_to_parent_folder(root_folder=None, platform=None):
         parent_folder = os.path.join(parent_folder, "vrpc-extension-firefox")
     if (platform == "chrome"):
         parent_folder = os.path.join(parent_folder, "vrpc-extension-chrome")
-    
+
+    # Start from a clean folder, otherwise anything removed from the source keeps getting shipped.
+    if os.path.isfile(os.path.join(parent_folder, "manifest.json")):
+        shutil.rmtree(parent_folder)
+
     # Copy items to parent folder
     for rel_item in all_items:
         src_path = os.path.join(root_folder, rel_item)

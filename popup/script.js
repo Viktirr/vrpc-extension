@@ -12,7 +12,7 @@ let hasLaunched = false;
 const manifest = browser.runtime.getManifest()
 const versionNumber = manifest.version;
 // Compatibility thresholds mirrored from background.js.
-const MIN_APP_VERSION = "1.10";
+const MIN_APP_VERSION = "1.1.0";
 const MIN_PROTO = 2;
 
 function ParseVersion(value) {

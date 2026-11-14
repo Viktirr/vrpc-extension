@@ -3,11 +3,10 @@ if (typeof browser === 'undefined') {
   var browser = chrome;
 }
 
-const updateUrl = "./new-update-page/update.html"
 const nativeHostName = "vrpc";
 // Wire-protocol version; older apps ignore the unknown PROTO frame.
 const CLIENT_PROTO = 2;
-const MIN_APP_VERSION = "1.10";
+const MIN_APP_VERSION = "1.1.0";
 const MIN_PROTO = 2;
 
 // Don't hammer the host with launches if it keeps failing to start.
@@ -26,15 +25,6 @@ const heartbeatTimeoutMs = 120000;
 const watchdogIntervalMs = 20000;
 // Give the restarted app time to initialize Discord RPC before replaying song data.
 const recoveryReplayDelayMs = 1500;
-
-browser.runtime.onInstalled.addListener(details => {
-  if (details.reason === "install") {
-    browser.tabs.create({ url: updateUrl });
-  }
-  else if (details.reason === "update") {
-    browser.tabs.create( {url: updateUrl });
-  }
-})
 
 // Older builds marked an outdated app with a red "!" badge and the browser restores that badge
 // text when the background page restarts, so clear it once for installs that still carry it.
