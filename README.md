@@ -17,6 +17,9 @@ If you wish to build the latest version of the app, feel free to download the la
 [Download](https://github.com/Viktirr/vrpc-extension/releases/latest)
 
 
+## Auto-update notifications
+From extension version 1.1.0 the popup shows the desktop app's update state: when a newer app version has been downloaded and verified, it links the release notes and offers **Update now**, which opens the desktop setup panel for the final approval. The extension only sends update commands to app versions 1.1.0 or newer; older apps are left exactly as they were. Update checks and downloads happen inside the desktop app (over `api.viktir.com` and a signed GitHub release asset), not in the browser.
+
 ## Building  
 I really didn't think I'd have to create a sort of building script for this, however it has to be done due to differences in Firefox and Chrome browsers.   
 The script will build on the parent folder.  
@@ -35,10 +38,7 @@ Latest Python 3
 The script has to be placed in the same folder as this extension's files. Upon running the script, it will create 2 folders (or 1 if you chose a specific platform) on the parent directory (the folder above the script) with the selected platform for the extension.
 
 ## Usage
-While it's not available yet on any browser, you may enable the extension manually by going to
-`about:debugging`
-on Firefox and selecting manifest.json from there.  
-On Edge you may go onto the Extensions tab and enable Developer Mode, which will allow you to load this extension.
+The extension is published on the Chrome Web Store and Firefox Add-ons (links above). For development, load the unpacked build from the sibling `vrpc-extension-chrome` / `vrpc-extension-firefox` output folders: open `about:debugging` on Firefox and select that folder's `manifest.json`, or enable Developer Mode and "Load unpacked" in Chromium-based browsers.
 
 ## Troubleshooting / IT DOESN'T WORK!!
 Please review the troubleshooting section over at the [VRPC APP](https://github.com/Viktirr/vrpc-app) repository for more details, however here are some notes.  

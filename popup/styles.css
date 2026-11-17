@@ -422,3 +422,86 @@ hr {
     height: 100%;
     width: 100%;
 }
+
+#update-container-data h2 {
+    margin-bottom: 4px;
+}
+
+#update-status-text {
+    margin-top: 0;
+    margin-bottom: 4px;
+}
+
+#update-version-text,
+#update-message,
+#update-progress-text {
+    margin-bottom: 8px;
+}
+
+#update-progress {
+    margin: 0 16px 8px;
+}
+
+#update-progress-bar {
+    background-color: var(--gray);
+    border-radius: 1em;
+    height: 4px;
+    overflow: hidden;
+    width: 100%;
+}
+
+#update-progress-fill {
+    background-color: var(--white);
+    border-radius: 1em;
+    height: 100%;
+    transition: width 0.33s;
+    width: 0%;
+}
+
+#update-progress-text {
+    margin-top: 4px;
+}
+
+#update-actions {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    margin: 0 16px 12px;
+}
+
+#update-notes-container {
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.action-button {
+    background-color: #000;
+    border: #99999999 solid 1px;
+    border-radius: 1em;
+    color: var(--white);
+    cursor: pointer;
+    font-family: "Roboto", Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0 8px 0 0;
+    padding: 6px 14px;
+}
+
+.action-button:hover {
+    background-color: #222222;
+}
+
+.action-button:disabled {
+    background-color: #000;
+    border-color: #99999944;
+    color: #777777;
+    cursor: default;
+}
+
+.action-button.primary {
+    background-color: #153315;
+}
+
+.action-button.primary:hover {
+    background-color: #1d441d;
+}

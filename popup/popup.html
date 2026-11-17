@@ -83,6 +83,27 @@
                 </div>
             </div>
         </div>
+        <div id="update-container" class="droppable-container transition-medium" style="height: 0px; visibility: hidden;">
+            <div id="update-container-data">
+                <h2>Update</h2>
+                <h3 id="update-status-text">Up to date</h3>
+                <p id="update-version-text" class="plus-main-text" style="display: none;"></p>
+                <div id="update-progress" style="display: none;">
+                    <div id="update-progress-bar">
+                        <div id="update-progress-fill"></div>
+                    </div>
+                    <p id="update-progress-text" class="plus-main-text">0%</p>
+                </div>
+                <p id="update-message" class="plus-main-text" style="display: none;"></p>
+                <div id="update-actions">
+                    <button id="update-install-button" class="action-button primary transition-fast" type="button" style="display: none;">Update now</button>
+                    <button id="update-check-button" class="action-button transition-fast" type="button">Check for updates</button>
+                </div>
+                <p id="update-notes-container" class="plus-main-text" style="display: none;">
+                    <a id="update-notes-link" href="https://github.com/Viktirr/vrpc-app/releases" target="_blank" rel="noopener noreferrer">Release notes</a>
+                </p>
+            </div>
+        </div>
         <div id="stats-container" class="droppable-container closed transition-fast" style="display: none;">
             <div id="stats-container-toggle" class="droppable-container-toggle">
                 <img src="assets/chevron-down.svg" viewbox="0 0 24 24" width="24" height="24" class="transition-fast">

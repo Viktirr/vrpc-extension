@@ -9,19 +9,49 @@ let isScrollRunning = false;
 let firstUpdate = true;
 let hasLaunched = false;
 
+let appSupportsUpdates = false;
+let updatePollTimer = null;
+let updateStatusTimer = null;
+let updateStatus = null;
+let updatePending = null;
+let updateNotice = null;
+let updateNoticeTimer = null;
+let updateCheckExpiryTimer = null;
+let lastUpdateStatusRequestAt = 0;
+
 const manifest = browser.runtime.getManifest()
 const versionNumber = manifest.version;
 // Compatibility thresholds mirrored from background.js.
 const MIN_APP_VERSION = "1.1.0";
 const MIN_PROTO = 2;
+// The updater shipped first in 1.1.0. The update commands are sent only after an APPVERSION reply
+// proves the running app can answer them, so an older app never receives an unknown command.
+const MIN_UPDATE_APP_VERSION = "1.1.0";
+const UPDATE_POLL_INTERVAL_MS = 15000;
+const UPDATE_REPLY_TIMEOUT_MS = 6000;
 
+// Parses the version from an APPVERSION reply. Releases are strict numeric x.y.z; a plain x.y
+// means x.y.0, and two-part legacy releases packed minor and patch into two digits ("1.01" is
+// 1.0.1, never 1.1.0). Anything else, including dev suffixes such as "1.1.0-dev", is unparsable:
+// those builds report no automatic-update support to the app itself.
 function ParseVersion(value) {
-    if (!value) { return null; }
-    const match = String(value).match(/(\d+)\.(\d+)(?:\.(\d+))?/);
+    if (typeof value !== "string") { return null; }
+    const text = value.trim();
+
+    const legacy = text.match(/^(\d+)\.0(\d)$/);
+    if (legacy) {
+        return [parseInt(legacy[1], 10), 0, parseInt(legacy[2], 10)];
+    }
+
+    const match = text.match(/^(\d+)\.(\d+)(?:\.(\d+))?$/);
     if (!match) { return null; }
-    return [parseInt(match[1], 10), parseInt(match[2], 10), parseInt(match[3] || "0", 10)];
+
+    const parts = [match[1], match[2], match[3] || "0"];
+    if (!parts.every((part) => /^(0|[1-9]\d*)$/.test(part))) { return null; }
+    return parts.map((part) => parseInt(part, 10));
 }
 
+// An unparsable version is treated as older so every caller fails closed.
 function IsOlderVersion(value, minimum) {
     const left = ParseVersion(value);
     const right = ParseVersion(minimum);
@@ -56,6 +86,367 @@ function HideWarning(id) {
         return element && element.style.display === "block";
     });
     container.style.height = anyVisible ? document.getElementById("warning-container-data").offsetHeight + "px" : "0px";
+}
+
+// --- Update panel --------------------------------------------------------------------------
+// The app answers GET_UPDATE_STATUS with "UPDATESTATUS: <json>" and the two actions with
+// "UPDATE: <result>". background.js forwards every unknown app reply to the popup unchanged, so
+// no background change is needed. Nothing here is sent until an APPVERSION reply proves the app
+// is new enough to understand the commands.
+
+function SendUpdateCommand(content) {
+    try {
+        const result = browser.runtime.sendMessage({
+            type: "SEND_TO_APP",
+            content: content
+        });
+        if (result && typeof result.catch === "function") { result.catch(() => { }); }
+    } catch (e) {
+        console.log("[Popup] Couldn't send " + content + ": " + e);
+    }
+}
+
+function FormatUpdateVersions(status) {
+    if (!status) { return ""; }
+    const parts = [];
+    if (status.currentVersion) { parts.push("Installed " + status.currentVersion); }
+    if (status.availableVersion) { parts.push("Available " + status.availableVersion); }
+    return parts.join(" | ");
+}
+
+function SanitizeUpdateMessage(value) {
+    if (typeof value !== "string") { return ""; }
+    const cleaned = value.replace(/[\r\n\t]+/g, " ").replace(/[<>]/g, "").trim();
+    return cleaned.length > 160 ? cleaned.substring(0, 157) + "..." : cleaned;
+}
+
+function SetUpdateNotice(text) {
+    updateNotice = { text: text, until: Date.now() + 6000 };
+}
+
+function StartUpdatePolling(sendNow) {
+    if (!appSupportsUpdates || updatePollTimer) { return; }
+    if (sendNow) { RequestUpdateStatus(true); }
+    updatePollTimer = setInterval(() => { RequestUpdateStatus(false); }, UPDATE_POLL_INTERVAL_MS);
+}
+
+function StopUpdatePolling() {
+    if (updatePollTimer) { clearInterval(updatePollTimer); updatePollTimer = null; }
+    if (updateStatusTimer) { clearTimeout(updateStatusTimer); updateStatusTimer = null; }
+    if (updateCheckExpiryTimer) { clearTimeout(updateCheckExpiryTimer); updateCheckExpiryTimer = null; }
+    updateStatus = null;
+    updatePending = null;
+    updateNotice = null;
+    RenderUpdatePanel();
+}
+
+function RequestUpdateStatus(force) {
+    if (!appSupportsUpdates) { return; }
+
+    // A heartbeat reply may want a refresh too, but it must never turn the popup's 4 second
+    // heartbeat into a burst of update requests.
+    const now = Date.now();
+    if (!force && now - lastUpdateStatusRequestAt < 5000) { return; }
+    lastUpdateStatusRequestAt = now;
+
+    SendUpdateCommand("GET_UPDATE_STATUS");
+    if (updateStatusTimer) { clearTimeout(updateStatusTimer); }
+    updateStatusTimer = setTimeout(() => {
+        updateStatusTimer = null;
+        // A launched installer stops this app, so "Installing" outlives the status connection.
+        if (updatePending && updatePending.kind === "install") { return; }
+        updatePending = null;
+        updateStatus = null;
+        RenderUpdatePanel();
+    }, UPDATE_REPLY_TIMEOUT_MS);
+}
+
+function HandleUpdateStatus(content) {
+    if (updateStatusTimer) { clearTimeout(updateStatusTimer); updateStatusTimer = null; }
+
+    let status = null;
+    try {
+        status = JSON.parse(content.substring("UPDATESTATUS: ".length));
+    } catch (e) {
+        status = null;
+    }
+    if (!status || typeof status !== "object" || typeof status.phase !== "string") {
+        updateStatus = null;
+        RenderUpdatePanel();
+        return;
+    }
+
+    // A reply proves the app understands the update command even if a version reply was missed.
+    if (!appSupportsUpdates) {
+        appSupportsUpdates = true;
+        StartUpdatePolling(false);
+    }
+
+    updateStatus = status;
+    if (updatePending) {
+        if (updatePending.kind === "install") {
+            if (status.phase !== "installing") { updatePending = null; }
+        } else {
+            const baseline = updatePending.baseline || "";
+            const lastChecked = status.lastCheckedUtc || "";
+            // Only a new check (or a phase beyond "checking") retires the optimistic state.
+            if (lastChecked !== baseline || status.phase !== "idle") { updatePending = null; }
+        }
+    }
+    RenderUpdatePanel();
+}
+
+function RequestUpdateCheck() {
+    if (!appSupportsUpdates) { return; }
+    if (updatePending && updatePending.kind === "install") { return; }
+
+    updateNotice = null;
+    updatePending = { kind: "check", baseline: (updateStatus && updateStatus.lastCheckedUtc) || "" };
+    RenderUpdatePanel();
+    SendUpdateCommand("UPDATE_CHECK");
+
+    setTimeout(() => { RequestUpdateStatus(true); }, 1200);
+    if (updateCheckExpiryTimer) { clearTimeout(updateCheckExpiryTimer); }
+    updateCheckExpiryTimer = setTimeout(() => {
+        updateCheckExpiryTimer = null;
+        if (updatePending && updatePending.kind === "check") {
+            updatePending = null;
+            RenderUpdatePanel();
+        }
+    }, UPDATE_REPLY_TIMEOUT_MS + 4000);
+}
+
+function RequestUpdateInstall() {
+    if (!appSupportsUpdates) { return; }
+    if (updatePending && updatePending.kind === "install") { return; }
+
+    updateNotice = null;
+    updatePending = { kind: "install" };
+    RenderUpdatePanel();
+    SendUpdateCommand("UPDATE_INSTALL");
+    setTimeout(() => { RequestUpdateStatus(true); }, 1500);
+}
+
+function HandleUpdateCommandReply(content) {
+    const result = content.substring("UPDATE: ".length).trim();
+
+    if (result === "accepted") {
+        if (!updatePending || updatePending.kind !== "check") {
+            updatePending = { kind: "check", baseline: (updateStatus && updateStatus.lastCheckedUtc) || "" };
+        }
+        RenderUpdatePanel();
+        setTimeout(() => { RequestUpdateStatus(true); }, 700);
+        return;
+    }
+    if (result === "installing") {
+        updatePending = { kind: "install" };
+        RenderUpdatePanel();
+        setTimeout(() => { RequestUpdateStatus(true); }, 1500);
+        return;
+    }
+    if (result === "rate_limited") {
+        updatePending = null;
+        SetUpdateNotice("You checked for updates recently. Please try again in a few minutes.");
+        RenderUpdatePanel();
+        return;
+    }
+    if (result === "not_ready") {
+        updatePending = null;
+        SetUpdateNotice("The update isn't ready yet. Please try again in a moment.");
+        RenderUpdatePanel();
+        setTimeout(() => { RequestUpdateStatus(true); }, 800);
+        return;
+    }
+    if (result === "failed") {
+        updatePending = null;
+        SetUpdateNotice("The update couldn't be started. Please try again.");
+        RenderUpdatePanel();
+        setTimeout(() => { RequestUpdateStatus(true); }, 800);
+        return;
+    }
+    if (result === "unsupported") {
+        updatePending = null;
+        SetUpdateNotice("Updates aren't available for this installation.");
+        RenderUpdatePanel();
+        setTimeout(() => { RequestUpdateStatus(true); }, 800);
+        return;
+    }
+
+    // Unknown reply: let the next status poll decide what to show.
+    updatePending = null;
+    RenderUpdatePanel();
+}
+
+function BuildUpdateView() {
+    let phase = null;
+    if (updatePending && updatePending.kind === "install") {
+        phase = "installing";
+    } else if (updatePending && updatePending.kind === "check") {
+        phase = "checking";
+    } else if (updateStatus && typeof updateStatus.phase === "string") {
+        phase = updateStatus.phase;
+    }
+    if (!phase) { return null; }
+
+    const status = updateStatus || {};
+    const notice = (updateNotice && Date.now() < updateNotice.until) ? updateNotice.text : "";
+    const view = {
+        title: "",
+        note: "",
+        versions: "",
+        progressVisible: false,
+        progressPercent: 0,
+        installVisible: false,
+        installDisabled: false,
+        installLabel: "Update now",
+        checkVisible: true,
+        checkDisabled: false,
+        checkLabel: "Check for updates",
+        notesUrl: ""
+    };
+
+    switch (phase) {
+        case "idle":
+            view.title = "Up to date";
+            if (status.currentVersion) { view.versions = "Installed " + status.currentVersion; }
+            break;
+        case "checking":
+            view.title = "Checking for updates...";
+            view.checkVisible = false;
+            break;
+        case "downloading":
+            view.title = "Downloading update";
+            view.versions = FormatUpdateVersions(status);
+            view.progressVisible = true;
+            view.progressPercent = Math.max(0, Math.min(100, Math.round(Number(status.progressPercent) || 0)));
+            view.checkVisible = false;
+            break;
+        case "ready":
+            view.title = "Update available";
+            view.versions = FormatUpdateVersions(status);
+            view.installVisible = true;
+            break;
+        case "installing":
+            view.title = "Installing update...";
+            view.note = "The VRPC app will restart. This popup can be closed.";
+            view.installVisible = true;
+            view.installDisabled = true;
+            view.installLabel = "Installing...";
+            view.checkVisible = false;
+            break;
+        case "failed":
+            view.title = "Update check failed";
+            view.note = SanitizeUpdateMessage(status.lastErrorMessage) || "Please try again later.";
+            view.checkLabel = "Try again";
+            break;
+        case "not_installed":
+            view.title = "Automatic updates unavailable";
+            view.note = "VRPC is running from a release package, not from an installation. Install the release to get automatic updates.";
+            view.checkVisible = false;
+            break;
+        case "unsupported":
+            view.title = "Automatic updates unavailable";
+            view.note = "This VRPC version does not support automatic updates.";
+            view.checkVisible = false;
+            break;
+        case "disabled":
+            view.title = "Automatic updates disabled";
+            view.note = "Update checks are turned off in the VRPC app.";
+            view.checkVisible = false;
+            break;
+        default:
+            return null;
+    }
+
+    // A transient hint must not hide a definitive failed/unavailable message.
+    if (notice && phase !== "failed" && phase !== "not_installed" && phase !== "unsupported" && phase !== "disabled") {
+        view.note = notice;
+    }
+
+    if ((phase === "ready" || phase === "downloading" || phase === "installing") &&
+        typeof status.notesUrl === "string" && status.notesUrl.startsWith("https://")) {
+        view.notesUrl = status.notesUrl;
+    }
+
+    return view;
+}
+
+function RenderUpdatePanel() {
+    const container = document.getElementById("update-container");
+    const data = document.getElementById("update-container-data");
+    if (!container || !data) { return; }
+
+    const view = BuildUpdateView();
+    if (!view) {
+        container.style.height = "0px";
+        container.style.visibility = "hidden";
+        return;
+    }
+
+    const statusText = document.getElementById("update-status-text");
+    if (statusText) { statusText.textContent = view.title; }
+
+    const versionText = document.getElementById("update-version-text");
+    if (versionText) {
+        versionText.textContent = view.versions;
+        versionText.style.display = view.versions ? "block" : "none";
+    }
+
+    const message = document.getElementById("update-message");
+    if (message) {
+        message.textContent = view.note;
+        message.style.display = view.note ? "block" : "none";
+    }
+
+    const progress = document.getElementById("update-progress");
+    if (progress) { progress.style.display = view.progressVisible ? "block" : "none"; }
+    const progressFill = document.getElementById("update-progress-fill");
+    if (progressFill) { progressFill.style.width = view.progressPercent + "%"; }
+    const progressText = document.getElementById("update-progress-text");
+    if (progressText) { progressText.textContent = view.progressPercent + "%"; }
+
+    const installButton = document.getElementById("update-install-button");
+    if (installButton) {
+        installButton.textContent = view.installLabel;
+        installButton.disabled = view.installDisabled;
+        installButton.style.display = view.installVisible ? "inline-block" : "none";
+    }
+
+    const checkButton = document.getElementById("update-check-button");
+    if (checkButton) {
+        checkButton.textContent = view.checkLabel;
+        checkButton.disabled = view.checkDisabled;
+        checkButton.style.display = view.checkVisible ? "inline-block" : "none";
+    }
+
+    const notesContainer = document.getElementById("update-notes-container");
+    const notesLink = document.getElementById("update-notes-link");
+    if (notesContainer && notesLink) {
+        if (view.notesUrl) {
+            notesLink.setAttribute("href", view.notesUrl);
+            notesContainer.style.display = "block";
+        } else {
+            notesContainer.style.display = "none";
+        }
+    }
+
+    container.style.visibility = "visible";
+    container.style.height = data.offsetHeight + "px";
+
+    // The notice line is only a transient hint; the next status poll has the final word.
+    if (updateNoticeTimer) { clearTimeout(updateNoticeTimer); updateNoticeTimer = null; }
+    if (updateNotice) {
+        const remaining = updateNotice.until - Date.now();
+        if (remaining > 0) {
+            updateNoticeTimer = setTimeout(() => {
+                updateNotice = null;
+                updateNoticeTimer = null;
+                RenderUpdatePanel();
+            }, remaining + 50);
+        } else {
+            updateNotice = null;
+        }
+    }
 }
 
 function OpenContainer(_container) {
@@ -457,7 +848,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     toggleAbout.addEventListener("click", () => { SwitchToggle("toggle-about") });
 
+    var updateCheckButton = document.getElementById("update-check-button");
+    var updateInstallButton = document.getElementById("update-install-button");
+    if (updateCheckButton) { updateCheckButton.addEventListener("click", RequestUpdateCheck); }
+    if (updateInstallButton) { updateInstallButton.addEventListener("click", RequestUpdateInstall); }
+
     aboutContainer.querySelector("#about-container-data p.plus-main-text").textContent = `Version ${versionNumber}`;
+
+    // A version reply may have arrived before the DOM was ready; paint the panel and refresh once.
+    if (appSupportsUpdates) {
+        RenderUpdatePanel();
+        RequestUpdateStatus(true);
+    }
 }, { once: true });
 
 try {
@@ -478,6 +880,7 @@ try {
                 }
                 hasLaunched = true;
                 gotHeartbeatResponse = true;
+                if (!updateStatus) { RequestUpdateStatus(false); }
             }
             else if (message.content === "STATUS: FAILED") {
                 browser.runtime.sendMessage({
@@ -506,6 +909,12 @@ try {
             }
             else if (message.content === "STATUS: APP_OUTDATED") {
                 ShowWarning("warning-app-outdated");
+            }
+            else if (message.content.startsWith("UPDATESTATUS: ")) {
+                HandleUpdateStatus(message.content);
+            }
+            else if (message.content.startsWith("UPDATE: ")) {
+                HandleUpdateCommandReply(message.content);
             }
             else if (message.content.includes("RPC: ")) {
                 // Message content should involve: [0] = Song Name, [1] = Artist Name, [2] = Album Name, [3] = Image Link, [4] = Discord RPC Status, [5] = Timestamp Start, [6] = Timestamp End, [7] = Is program receiving RPC?, [8] = Service Name
@@ -741,6 +1150,18 @@ try {
                 warning.style.display = outdated ? "block" : "none";
                 if (outdated) { ShowWarning("warning-app-outdated"); }
                 else { HideWarning("warning-app-outdated"); }
+
+                // The update commands exist only in 1.1.0 and newer. An older app's status parser
+                // treats an unknown first line as a service name, so never send one there; the
+                // parsed version must be well formed as well, not just compare as new enough.
+                const supportsUpdates = ParseVersion(appVersion) !== null && !IsOlderVersion(appVersion, MIN_UPDATE_APP_VERSION);
+                if (supportsUpdates && !appSupportsUpdates) {
+                    appSupportsUpdates = true;
+                    StartUpdatePolling(true);
+                } else if (!supportsUpdates && appSupportsUpdates) {
+                    appSupportsUpdates = false;
+                    StopUpdatePolling();
+                }
             }
             else if (message.content.includes("LDSTATS: ")) {
                 message.content = message.content.replace("LDSTATS: ", "");
