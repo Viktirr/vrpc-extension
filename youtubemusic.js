@@ -2,11 +2,20 @@
 if (typeof browser === 'undefined') {
   var browser = chrome;
 }
-console.log('YouTube Music script is running.');
-browser.runtime.sendMessage({
-  type: "SET_STATUS_INFO",
-  content: "YouTube Music\nOpened"
-});
+// A tab brought back by session restore can sit in the background with its video auto-resumed
+// (muted), and announcing from it would arm the app and stream a song nobody is listening to.
+// The page stays completely silent until the user has actually looked at it once.
+let announcedToApp = false;
+
+function AnnounceToApp() {
+  if (announcedToApp) { return; }
+  announcedToApp = true;
+  console.log('YouTube Music script is running.');
+  browser.runtime.sendMessage({
+    type: "SET_STATUS_INFO",
+    content: "YouTube Music\nOpened"
+  });
+}
 // The player bar became a mini player built from ytmusic-track-info; the old bar is kept as a
 // fallback because both layouts are still served.
 const SELECTORS = {
@@ -87,19 +96,22 @@ function ReadLegacyTrackInfo() {
 function ReadPlayback() {
   const video = document.querySelector("video");
   if (video && Number.isFinite(video.duration) && video.duration > 0) {
+    // A restored page auto-resumes its video muted; a muted video is not listening.
+    const playbackAudible = !video.paused && !video.muted && video.volume > 0;
     return {
       duration: Math.floor(video.duration),
       currentTime: Math.floor(video.currentTime) || 0,
-      status: video.paused ? "Paused" : "Playing"
+      status: playbackAudible ? "Playing" : "Paused"
     };
   }
   const slider = document.querySelector(SELECTORS.PROGRESS_SLIDER);
   if (slider) {
     const [position, total] = (slider.getAttribute("aria-valuetext") || "").split(/\s+of\s+/i);
+    const playbackAudible = video && !video.paused && !video.muted && video.volume > 0;
     return {
       duration: Math.floor(Number(slider.max) || TimeToSeconds(total)),
       currentTime: TimeToSeconds(position),
-      status: video && !video.paused ? "Playing" : "Paused"
+      status: playbackAudible ? "Playing" : "Paused"
     };
   }
   return {
@@ -150,7 +162,7 @@ function getCurrentState() {
 
 function handleStateUpdate(state) {
   // A torn down player reports nothing at all; posting that would blank out whatever is on screen.
-  if (!state.hasChanged || !state.title) return;
+  if (!announcedToApp || !state.hasChanged || !state.title) return;
 
   browser.runtime.sendMessage({
     type: "SET_RPC_INFO",
@@ -239,6 +251,18 @@ function initialize() {
 
 let attachTimer = null;
 
+// Startup: the app is only armed from a tab the user has actually opened. A session-restored
+// background tab never announces, so it cannot produce a phantom presence.
+if (document.visibilityState === "visible") {
+  AnnounceToApp();
+} else {
+  console.log('YouTube Music is in a background tab, waiting for it to be opened.');
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") { AnnounceToApp(); }
+});
+
 if (document.readyState === "complete") {
   initialize();
 } else {
@@ -253,6 +277,7 @@ window.addEventListener("yt-navigate-finish", () => {
 });
 
 window.addEventListener("pagehide", () => {
+  if (!announcedToApp) { return; }
   browser.runtime.sendMessage({
     type: "SET_STATUS_INFO",
     content: "YouTube Music\nClosed"
@@ -262,6 +287,8 @@ window.addEventListener("pagehide", () => {
 // The page can come back from the bfcache without the content script running again.
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) { return; }
+  if (document.visibilityState !== "visible" && !announcedToApp) { return; }
+  announcedToApp = true;
   browser.runtime.sendMessage({
     type: "SET_STATUS_INFO",
     content: "YouTube Music\nOpened"
