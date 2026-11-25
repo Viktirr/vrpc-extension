@@ -29,5 +29,5 @@
     }
   ],
 
-  "permissions": ["nativeMessaging"]
+  "permissions": ["nativeMessaging", "storage"]
 }

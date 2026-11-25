@@ -20,6 +20,8 @@ If you wish to build the latest version of the app, feel free to download the la
 ## Auto-update notifications
 From extension version 1.1.0 the popup shows the desktop app's update state: when a newer app version has been downloaded and verified, it links the release notes and offers **Update now**, which opens the desktop setup panel for the final approval. The extension only sends update commands to app versions 1.1.0 or newer; older apps are left exactly as they were. Update checks and downloads happen inside the desktop app (over `api.viktir.com` and a signed GitHub release asset), not in the browser.
 
+Automatic installation is optional and off by default. The one-time update page (`new-update-page/update.html`, opened once per extension version) explains it and offers **Enable automatic installs**; the same switch lives in the popup under **Configuration → Updates → Install Updates Automatically**. It is stored in the app's `Config.json` (`UnattendedUpdates`) and only applies to signed, verified packages. The default remains the user-approved **Update now** flow.
+
 ## Building  
 I really didn't think I'd have to create a sort of building script for this, however it has to be done due to differences in Firefox and Chrome browsers.   
 The script will build on the parent folder.  

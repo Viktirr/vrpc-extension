@@ -35,6 +35,36 @@ try {
   console.log("Couldn't clear the extension badge: " + e);
 }
 
+// Show the update notice once per installed extension version. The page also
+// offers the opt-in "install updates automatically" switch, which is stored in
+// the app's Config.json and read by the desktop updater.
+const updateInfoPagePath = "new-update-page/update.html";
+const updateInfoPageVersionKey = "vrpcUpdateInfoPageVersion";
+
+function OpenUpdateInfoPage() {
+  try {
+    browser.tabs.create({ url: browser.runtime.getURL(updateInfoPagePath) });
+  } catch (e) {
+    console.log("Couldn't open the VRPC update page: " + e);
+  }
+}
+
+browser.runtime.onInstalled.addListener((details) => {
+  if (details.reason !== "install" && details.reason !== "update") { return; }
+
+  const version = browser.runtime.getManifest().version;
+  try {
+    browser.storage.local.get(updateInfoPageVersionKey).then((stored) => {
+      if (stored && stored[updateInfoPageVersionKey] === version) { return; }
+      browser.storage.local.set({ [updateInfoPageVersionKey]: version });
+      OpenUpdateInfoPage();
+    }).catch(() => OpenUpdateInfoPage());
+  } catch (e) {
+    // A browser/storage failure must not hide the notice.
+    OpenUpdateInfoPage();
+  }
+});
+
 let port = null;
 let lastConnectAttempt = 0;
 let connectBlockedUntil = 0;
@@ -442,5 +472,9 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.type === "SEND_TO_APP") {
     console.log("Sending to app... " + message.content);
     SendToApp("Status: \n" + message.content);
+  } else if (message.type === "SET_UNATTENDED_UPDATES") {
+    const ok = SendToApp("Status: \nSET_CONFIG\nUnattendedUpdates\n" + (message.enabled ? "true" : "false"));
+    if (typeof sendResponse === "function") { sendResponse({ ok }); }
+    return true;
   }
 });

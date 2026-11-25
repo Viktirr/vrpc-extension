@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="update-style.css">
+  <link rel="icon" type="image/x-icon" href="../icons/vlogo.webp">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="VRPC automatic updates and the optional unattended update setting.">
+  <meta name="keywords" content="vrpc, update, automatic updates, install">
+  <meta charset="UTF-8">
+  <title>Viktir | VRPC Update Information</title>
+</head>
+
+<body>
+  <div class="background"
+    style="background-image: url(./background-vrpc-1.webp); background-repeat: no-repeat; background-size: cover;">
+  </div>
+
+  <div class="panel" style="height: auto; min-height: auto; padding-top: 50px;">
+    <div class="flex flex-vertical center" style="gap:16px;">
+      <div class="panel-container" style="width: 70%; border: 2px solid #8cf; background-color: #1149;">
+        <h2 style="color: #dff;">VRPC 1.1.0 is here</h2>
+        <p class="strong">VRPC can now check for, download and verify updates by itself.</p>
+        <p>The app still asks before installing by default. If you prefer, you can let it install verified updates
+          automatically instead.</p>
+      </div>
+    </div>
+  </div>
+  <br>
+  <br>
+
+  <div class="panel" style="height: auto; min-height: auto;">
+    <div class="flex flex-vertical center" style="gap:24px;">
+      <h1>Automatic updates</h1>
+      <div class="panel-container" style="width: 70%; text-align: left;">
+        <p class="strong">What happens when you enable it:</p>
+        <ul>
+          <li>VRPC checks a signed release feed in the background.</li>
+          <li>Downloads are checked against the signed size, SHA-256 and every payload file before anything runs.</li>
+          <li>When a verified update is ready, VRPC closes, installs it and restarts. Settings and listening history are
+            kept.</li>
+          <li>If an install fails, the previous version is restored and VRPC keeps working.</li>
+        </ul>
+        <p>You can change this at any time in the extension popup under <b>Configuration → Updates</b>. The
+          <b>Update now</b> button remains available either way.</p>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 24px;">
+          <button id="enable-auto" class="button" type="button" style="padding: 12px 20px;">Enable automatic
+            installs</button>
+          <button id="keep-manual" class="button" type="button" style="padding: 12px 20px;">Keep asking me</button>
+        </div>
+        <p id="status" class="small" style="margin-top: 16px;"></p>
+      </div>
+    </div>
+  </div>
+  <div class="blank-space"></div>
+
+  <div class="panel" style="height: auto; min-height: auto;">
+    <div class="flex flex-vertical center">
+      <h1>Thank you for using VRPC!</h1>
+    </div>
+  </div>
+  <br>
+
+  <script src="update.js"></script>
+</body>
+
+</html>
