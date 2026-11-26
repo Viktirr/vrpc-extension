@@ -3,8 +3,8 @@ if (typeof browser === 'undefined') {
     var browser = chrome;
 }
 
-// A tab brought back by session restore in the background has never been seen by the user, so it
-// stays completely silent instead of arming the app and streaming an unattended player.
+// The page announces once per load, including a session-restored tab, so the app is armed even
+// before the tab is viewed.
 let announcedToApp = false;
 
 function AnnounceToApp() {
@@ -114,17 +114,8 @@ if (document.readyState === "complete") {
     })
 }
 
-// Startup: the app is only armed from a tab the user has actually opened. A session-restored
-// background tab never announces, so it cannot produce a phantom presence.
-if (document.visibilityState === "visible") {
-    AnnounceToApp();
-} else {
-    console.log("Soundcloud is in a background tab, waiting for it to be opened.");
-}
-
-document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") { AnnounceToApp(); }
-});
+// Arm the app from every player page, including a session-restored background tab.
+AnnounceToApp();
 
 window.addEventListener("pagehide", () => {
     if (!announcedToApp) { return; }
@@ -136,8 +127,6 @@ window.addEventListener("pagehide", () => {
 
 window.addEventListener("pageshow", (event) => {
     if (!event.persisted) { return; }
-    if (document.visibilityState !== "visible" && !announcedToApp) { return; }
-    announcedToApp = true;
     browser.runtime.sendMessage({
         type: "SET_STATUS_INFO",
         content: "Soundcloud\nOpened"

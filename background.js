@@ -49,6 +49,9 @@ function OpenUpdateInfoPage() {
   }
 }
 
+// The app stays running for as long as the browser does, even before a player page is opened.
+browser.runtime.onStartup.addListener(StartAppAtStartup);
+
 browser.runtime.onInstalled.addListener((details) => {
   if (details.reason !== "install" && details.reason !== "update") { return; }
 
@@ -78,6 +81,7 @@ let appOutdated = false;
 let heartbeatTimer = null;
 let watchdogTimer = null;
 let reconnectTimer = null;
+let startupTimer = null;
 let recoveryPending = false;
 let activeService = null;
 let announcedService = null;
@@ -409,11 +413,6 @@ function RestartApp(reason) {
 
 // Check if the app is running
 function CheckAppHeartbeat() {
-  // Don't launch the app in a browser that has never had a player open. The watchdog is there
-  // to replace a process that died, not to take the lock away from the browser where music is
-  // actually playing.
-  if (!port && !hadLaunched && !activeService && !appLocked) { return; }
-
   if (appLocked) {
     // The browser holding the lock may have closed by now, so keep re-checking once in a while
     // instead of staying locked until this browser is restarted.
@@ -478,3 +477,17 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 });
+
+// Open the port as soon as the background starts, not only on the first player frame. The open
+// port keeps the service worker alive and the app running, like the pre-reconnect builds did.
+// The short delay lets a host from a reloaded worker release its pid lock first.
+function StartAppAtStartup() {
+  if (startupTimer || port) { return; }
+  startupTimer = setTimeout(() => {
+    startupTimer = null;
+    lastConnectAttempt = 0;
+    ConnectToApp();
+  }, restartGraceMs);
+}
+
+StartAppAtStartup();

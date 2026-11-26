@@ -2,9 +2,8 @@
 if (typeof browser === 'undefined') {
   var browser = chrome;
 }
-// A tab brought back by session restore can sit in the background with its video auto-resumed
-// (muted), and announcing from it would arm the app and stream a song nobody is listening to.
-// The page stays completely silent until the user has actually looked at it once.
+// The page announces once per load, including a session-restored tab, so the app is armed even
+// before the tab is viewed. Muted playback is still reported as Paused.
 let announcedToApp = false;
 
 function AnnounceToApp() {
@@ -251,17 +250,8 @@ function initialize() {
 
 let attachTimer = null;
 
-// Startup: the app is only armed from a tab the user has actually opened. A session-restored
-// background tab never announces, so it cannot produce a phantom presence.
-if (document.visibilityState === "visible") {
-  AnnounceToApp();
-} else {
-  console.log('YouTube Music is in a background tab, waiting for it to be opened.');
-}
-
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") { AnnounceToApp(); }
-});
+// Arm the app from every player page, including a session-restored background tab.
+AnnounceToApp();
 
 if (document.readyState === "complete") {
   initialize();
@@ -287,8 +277,6 @@ window.addEventListener("pagehide", () => {
 // The page can come back from the bfcache without the content script running again.
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) { return; }
-  if (document.visibilityState !== "visible" && !announcedToApp) { return; }
-  announcedToApp = true;
   browser.runtime.sendMessage({
     type: "SET_STATUS_INFO",
     content: "YouTube Music\nOpened"
